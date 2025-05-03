@@ -32,6 +32,12 @@ hugo server -D
 
 3. Open your browser and visit http://localhost:1313/
 
+### Development vs Production URLs
+
+- For local development, the site will be available at http://localhost:1313/
+- For GitHub Pages deployment, you may need to update the baseURL in config.toml to match your repository structure (e.g., "/personal-website/" for GitHub Pages project sites)
+- For custom domains or Netlify deployment, the baseURL should be set to "/" or your domain name
+
 ### Building for Production
 
 To build the site for production:
