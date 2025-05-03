@@ -17,4 +17,4 @@ Welcome to my personal website!
 - Specialize in crafting Generative AI solutions, real-money gaming platforms, tailored enterprise dashboards, and end-to-end full-stack applications.
 - Proficient in collaborating with cross-functional teams to deliver innovative solutions while ensuring system robustness and efficiency.
 
-[Learn more about me](/about/) or [check out my projects](/projects/).
+[Learn more about me](/my-personal-website/about/) or [check out my projects](/my-personal-website/projects/).
