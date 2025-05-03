@@ -1,0 +1,44 @@
+baseURL = "https://shivanshu27.github.io/personal-website/"
+languageCode = "en-us"
+title = "Shivanshu Singla"
+theme = "portfolio"
+
+[params]
+  author = "Shivanshu Singla"
+  description = "Senior Engineer with expertise in MERN stack development and AI solutions"
+  github = "https://github.com/Shivanshu27"
+  linkedin = "https://linkedin.com/in/shivanshusingla"
+  email = "shivanshu.singla27@gmail.com"
+  avatar = "/images/profile.jpg"
+  favicon = "/images/favicon.png"
+  truncate = false
+  titleMaxLength = 100
+  customCSS = ["css/custom.css"]
+  
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 1
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 2
+  [[menu.main]]
+    name = "Projects"
+    url = "/projects/"
+    weight = 3
+  [[menu.main]]
+    name = "Blog"
+    url = "/blog/"
+    weight = 4
+  [[menu.main]]
+    name = "Contact"
+    url = "/contact/"
+    weight = 5
+
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    style = "monokai"
