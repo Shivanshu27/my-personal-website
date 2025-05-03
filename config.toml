@@ -1,4 +1,4 @@
-baseURL = "https://shivanshu27.github.io/my-personal-website"
+baseURL = "https://shivanshu27.github.io/my-personal-website/" # Ensure trailing slash for correct relative paths
 languageCode = "en-us"
 title = "Shivanshu Singla"
 theme = "portfolio"

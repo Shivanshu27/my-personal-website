@@ -14,7 +14,7 @@
   command = "hugo -b $DEPLOY_PRIME_URL"
 
 [context.production]
-  command = "hugo"
+  command = "hugo --baseURL $URL"
 
 [[redirects]]
   from = "/api/*"
