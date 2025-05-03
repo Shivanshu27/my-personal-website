@@ -10,11 +10,16 @@
     <link rel="icon" href="{{ .Site.Params.favicon | relURL }}">
     
     <!-- Styles -->
-    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    {{ range .Site.Params.customCSS }}
+    <link rel="stylesheet" href="{{ . | relURL }}">
+    {{ end }}
 </head>
 <body>
     <header class="site-header">
