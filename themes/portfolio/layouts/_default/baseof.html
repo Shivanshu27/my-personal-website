@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode | default "en" }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
+    <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ .Site.Params.favicon | relURL }}">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="/" class="logo">
+                    <span class="logo-text">{{ .Site.Title | truncate 20 }}</span>
+                </a>
+                
+                <nav class="main-nav">
+                    <ul>
+                        {{ range .Site.Menus.main }}
+                        <li><a href="{{ .URL }}" class="{{ if $.IsMenuCurrent "main" . }}active{{ end }}">{{ .Name }}</a></li>
+                        {{ end }}
+                    </ul>
+                </nav>
+                
+                <button class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        {{ block "main" . }}{{ end }}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>{{ .Site.Title }}</h3>
+                    <p>{{ .Site.Params.description }}</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        {{ range .Site.Menus.main }}
+                        <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+                        {{ end }}
+                    </ul>
+                </div>
+                
+                <div class="footer-social">
+                    <h4>Connect With Me</h4>
+                    <div class="social-icons">
+                        {{ with .Site.Params.github }}
+                        <a href="{{ . }}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+                        {{ end }}
+                        
+                        {{ with .Site.Params.linkedin }}
+                        <a href="{{ . }}" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i></a>
+                        {{ end }}
+                        
+                        {{ with .Site.Params.email }}
+                        <a href="mailto:{{ . }}"><i class="fas fa-envelope"></i></a>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; {{ now.Format "2006" }} {{ .Site.Params.author }}. All rights reserved.</p>
+                <p>Built with <span class="heart">❤</span> using <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+</body>
+</html>

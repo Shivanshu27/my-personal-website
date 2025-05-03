@@ -1,0 +1,49 @@
+{{ define "main" }}
+<section class="page-header">
+  <div class="container">
+    <h1>{{ .Title }}</h1>
+  </div>
+</section>
+
+<section class="content-section">
+  <div class="container">
+    {{ if eq .Section "blog" }}
+      <div class="post-list">
+        {{ range .Pages }}
+        <article class="post-item">
+          <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+          <div class="post-meta">
+            <span class="date"><i class="far fa-calendar-alt"></i> {{ .Date.Format "January 2, 2006" }}</span>
+            {{ with .Params.tags }}
+            <span class="tags">
+              <i class="fas fa-tags"></i>
+              {{ range . }}
+                <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a>
+              {{ end }}
+            </span>
+            {{ end }}
+          </div>
+          <div class="summary">
+            {{ .Summary | truncate 250 }}
+          </div>
+          <a href="{{ .Permalink }}" class="read-more">Read more →</a>
+        </article>
+        {{ end }}
+      </div>
+    {{ else }}
+      <div class="content">
+        {{ .Content }}
+      </div>
+      
+      {{ range .Pages }}
+      <article class="list-item">
+        <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+        <div class="summary">
+          {{ .Summary | truncate 200 }}
+        </div>
+      </article>
+      {{ end }}
+    {{ end }}
+  </div>
+</section>
+{{ end }}

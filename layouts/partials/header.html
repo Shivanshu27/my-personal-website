@@ -1,0 +1,14 @@
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item site-title" href="{{ .Site.BaseURL }}" style="max-width: none; white-space: normal; overflow: visible; text-overflow: clip;">
+        {{ .Site.Title }}
+      </a>
+    </div>
+    <div class="navbar-menu">
+      {{ range .Site.Menus.main }}
+      <a class="navbar-item" href="{{ .URL }}">{{ .Name }}</a>
+      {{ end }}
+    </div>
+  </nav>
+</header>

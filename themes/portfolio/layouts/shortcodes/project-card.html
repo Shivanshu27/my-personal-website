@@ -1,0 +1,34 @@
+<div class="project-card">
+  {{ if .Get "image" }}
+  <div class="project-image">
+    <img src="{{ .Get "image" }}" alt="{{ .Get "title" }}">
+  </div>
+  {{ end }}
+  
+  <div class="project-content">
+    <h3>{{ .Get "title" }}</h3>
+    <p>{{ .Get "description" }}</p>
+    
+    {{ with .Get "tags" }}
+    <div class="project-tags">
+      {{ range split . "," }}
+      <span class="tag">{{ . }}</span>
+      {{ end }}
+    </div>
+    {{ end }}
+    
+    <div class="project-links">
+      {{ with .Get "github" }}
+      <a href="{{ . }}" target="_blank" rel="noopener" class="btn btn-sm btn-github">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+      {{ end }}
+      
+      {{ with .Get "demo" }}
+      <a href="{{ . }}" target="_blank" rel="noopener" class="btn btn-sm btn-demo">
+        <i class="fas fa-external-link-alt"></i> Live Demo
+      </a>
+      {{ end }}
+    </div>
+  </div>
+</div>

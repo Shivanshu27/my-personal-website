@@ -1,0 +1,95 @@
+{{ define "main" }}
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <h1>{{ .Title }}</h1>
+      {{ .Content }}
+      
+      <div class="cta-buttons">
+        <a href="/about/" class="btn btn-primary">About Me</a>
+        <a href="/projects/" class="btn btn-secondary">View Projects</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="skills-section">
+  <div class="container">
+    <h2>Technical Skills</h2>
+    
+    <div class="skills-grid">
+      <div class="skill-category">
+        <h3>Languages & Frameworks</h3>
+        <ul>
+          <li>JavaScript (Node.js, Express.js)</li>
+          <li>React.js, Next.js</li>
+          <li>Nest.js, EJS, jQuery</li>
+          <li>TypeScript</li>
+          <li>Python (FastAPI, NumPy)</li>
+          <li>Solidity (Blockchain)</li>
+          <li>HTML/CSS</li>
+          <li>SQL, GraphQL</li>
+        </ul>
+      </div>
+      
+      <div class="skill-category">
+        <h3>Databases & Tools</h3>
+        <ul>
+          <li>MongoDB (Mongoose)</li>
+          <li>PostgreSQL (Sequelize)</li>
+          <li>Redis</li>
+          <li>Docker</li>
+          <li>REST APIs, Swagger</li>
+          <li>Git, Bitbucket</li>
+          <li>Web3.js, Ethers.js</li>
+        </ul>
+      </div>
+      
+      <div class="skill-category">
+        <h3>Cloud & DevOps</h3>
+        <ul>
+          <li>Azure Blob Storage</li>
+          <li>Azure Portal</li>
+          <li>Azure Bastion</li>
+          <li>Network Configuration</li>
+          <li>Server Deployments</li>
+          <li>CI/CD Pipelines</li>
+        </ul>
+      </div>
+      
+      <div class="skill-category">
+        <h3>AI & Data Science</h3>
+        <ul>
+          <li>Pandas, Scikit-learn</li>
+          <li>RAG Architecture</li>
+          <li>Multi-agent AI</li>
+          <li>Machine Learning</li>
+          <li>Data Visualization</li>
+          <li>NLP & Computer Vision</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="recent-posts">
+  <div class="container">
+    <h2>Recent Blog Posts</h2>
+    
+    <div class="post-grid">
+      {{ range first 3 (where .Site.RegularPages "Section" "blog") }}
+        <div class="post-card">
+          <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+          <div class="post-meta">{{ .Date.Format "January 2, 2006" }}</div>
+          <p>{{ .Summary | truncate 150 }}</p>
+          <a href="{{ .Permalink }}" class="read-more">Read more →</a>
+        </div>
+      {{ end }}
+    </div>
+    
+    <div class="text-center">
+      <a href="/blog/" class="btn btn-outline">View All Posts</a>
+    </div>
+  </div>
+</section>
+{{ end }}
