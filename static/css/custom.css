@@ -1,0 +1,14 @@
+/* Custom CSS additions */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.site-header {
+  border-bottom: 3px solid var(--primary-color);
+}
+
+.footer-content {
+  gap: 40px;
+}
+
+/* Additional customizations can go here */
