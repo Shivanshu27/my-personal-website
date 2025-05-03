@@ -13,6 +13,9 @@
 [context.branch-deploy]
   command = "hugo -b $DEPLOY_PRIME_URL"
 
+[context.production]
+  command = "hugo"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
