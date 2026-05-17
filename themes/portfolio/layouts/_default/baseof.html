@@ -21,7 +21,7 @@
     <header class="site-header">
         <div class="container">
             <div class="header-inner">
-                <a href="{{ "/" | relURL }}" class="logo">
+                <a href="{{ .Site.Home.RelPermalink }}" class="logo">
                     <span class="logo-bracket">{</span>
                     <span class="logo-text">{{ .Site.Params.author | default .Site.Title }}</span>
                     <span class="logo-bracket">}</span>
@@ -52,7 +52,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <a href="{{ "/" | relURL }}" class="footer-logo">
+                    <a href="{{ .Site.Home.RelPermalink }}" class="footer-logo">
                         <span class="logo-bracket">{</span>
                         <span class="logo-text">{{ .Site.Params.author }}</span>
                         <span class="logo-bracket">}</span>
