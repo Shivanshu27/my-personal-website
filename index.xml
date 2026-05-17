@@ -1,96 +1,96 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Shivanshu Singla</title><link>https://shivanshu27.github.io/my-personal-website/</link><description>Recent content on Shivanshu Singla</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sun, 08 Jan 2023 12:00:00 +0000</lastBuildDate><atom:link href="https://shivanshu27.github.io/my-personal-website/index.xml" rel="self" type="application/rss+xml"/><item><title>About Me</title><link>https://shivanshu27.github.io/my-personal-website/about/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/about/</guid><description>&lt;h2 id="professional-background">Professional Background&lt;/h2>
-&lt;p>I am a Senior Engineer at Evalueserve with expertise in developing full-stack applications using the MERN stack. Throughout my career, I have demonstrated proficiency in delivering scalable, high-performance applications across diverse domains including Generative AI solutions, real-money gaming platforms, enterprise dashboards, and blockchain applications.&lt;/p>
-&lt;p>I specialize in collaborating with cross-functional teams to deliver innovative solutions while ensuring system robustness and efficiency.&lt;/p>
-&lt;h2 id="skills">Skills&lt;/h2>
-&lt;h3 id="languages--frameworks">Languages &amp;amp; Frameworks&lt;/h3>
-&lt;ul>
-&lt;li>&lt;strong>JavaScript Ecosystem&lt;/strong>: Node.js, Express.js, Nest.js, React.js, Next.js, Web3.js, Ethers.js&lt;/li>
-&lt;li>&lt;strong>TypeScript&lt;/strong>: Strong typing for more robust applications&lt;/li>
-&lt;li>&lt;strong>Web Technologies&lt;/strong>: HTML, CSS, jQuery, EJS&lt;/li>
-&lt;li>&lt;strong>Query Languages&lt;/strong>: SQL, GraphQL&lt;/li>
-&lt;li>&lt;strong>Python&lt;/strong>: FastAPI, NumPy, Pandas, Scikit-learn&lt;/li>
-&lt;li>&lt;strong>Blockchain&lt;/strong>: Solidity for smart contract development&lt;/li>
-&lt;/ul>
-&lt;h3 id="databases--tools">Databases &amp;amp; Tools&lt;/h3>
-&lt;ul>
-&lt;li>&lt;strong>NoSQL&lt;/strong>: MongoDB with Mongoose&lt;/li>
-&lt;li>&lt;strong>SQL&lt;/strong>: PostgreSQL with Sequelize&lt;/li>
-&lt;li>&lt;strong>Caching&lt;/strong>: Redis&lt;/li>
-&lt;li>&lt;strong>Containerization&lt;/strong>: Docker&lt;/li>
-&lt;li>&lt;strong>API Development&lt;/strong>: REST APIs, Swagger&lt;/li>
-&lt;li>&lt;strong>Version Control&lt;/strong>: Git, Bitbucket&lt;/li>
-&lt;/ul>
-&lt;h3 id="cloud--devops">Cloud &amp;amp; DevOps&lt;/h3>
-&lt;ul>
-&lt;li>&lt;strong>Azure&lt;/strong>: Blob Storage, Azure Portal, Azure Bastion&lt;/li>
-&lt;li>&lt;strong>Network Configuration&lt;/strong>: Setting up secure infrastructure&lt;/li>
-&lt;li>&lt;strong>Server Deployments&lt;/strong>: Managing deployment processes&lt;/li>
-&lt;/ul>
-&lt;h2 id="work-experience">Work Experience&lt;/h2>
-&lt;h3 id="senior-engineer">Senior Engineer&lt;/h3>
-&lt;p>&lt;strong>Evalueserve SEZ Pvt. Ltd., Gurugram&lt;/strong> | Dec 2023 – Present&lt;/p></description></item><item><title>Contact</title><link>https://shivanshu27.github.io/my-personal-website/contact/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/contact/</guid><description>&lt;h1 id="get-in-touch">Get In Touch&lt;/h1>
-&lt;p>I&amp;rsquo;m always open to discussing new projects, opportunities, or collaborations. Feel free to reach out to me through any of the following channels:&lt;/p>
-&lt;h2 id="contact-information">Contact Information&lt;/h2>
-&lt;ul>
-&lt;li>&lt;strong>Email&lt;/strong>: &lt;a href="mailto:shivanshu.singla27@gmail.com">shivanshu.singla27@gmail.com&lt;/a>&lt;/li>
-&lt;li>&lt;strong>Phone&lt;/strong>: (+91) 8168056871&lt;/li>
-&lt;li>&lt;strong>Location&lt;/strong>: New Delhi, India&lt;/li>
-&lt;/ul>
-&lt;h2 id="professional-profiles">Professional Profiles&lt;/h2>
-&lt;ul>
-&lt;li>&lt;strong>LinkedIn&lt;/strong>: &lt;a href="https://linkedin.com/in/shivanshusingla">linkedin.com/in/shivanshusingla&lt;/a>&lt;/li>
-&lt;li>&lt;strong>GitHub&lt;/strong>: &lt;a href="https://github.com/Shivanshu27">github.com/Shivanshu27&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;h2 id="contact-form">Contact Form&lt;/h2>
-&lt;p>If you prefer, you can also send me a message directly using the form below:&lt;/p>
-&lt;!-- raw HTML omitted -->
-&lt;!-- raw HTML omitted -->
-&lt;!-- raw HTML omitted -->
-&lt;!-- raw HTML omitted -->
-&lt;p>&lt;!-- raw HTML omitted -->Send Message&lt;!-- raw HTML omitted -->&lt;/p></description></item><item><title>Getting Started with Hugo: Building a Static Site</title><link>https://shivanshu27.github.io/my-personal-website/blog/getting-started-with-hugo/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/blog/getting-started-with-hugo/</guid><description>&lt;h1 id="getting-started-with-hugo-building-a-static-site">Getting Started with Hugo: Building a Static Site&lt;/h1>
-&lt;p>Hugo is a powerful static site generator written in Go. It&amp;rsquo;s known for its exceptional speed and flexibility. In this post, I&amp;rsquo;ll walk through the process of setting up a Hugo site from scratch, just like I did with this personal website.&lt;/p>
-&lt;h2 id="why-hugo">Why Hugo?&lt;/h2>
-&lt;p>There are many static site generators available today (Jekyll, Gatsby, Eleventy, etc.), but Hugo has some distinct advantages:&lt;/p></description></item><item><title>Projects</title><link>https://shivanshu27.github.io/my-personal-website/projects/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/projects/</guid><description>&lt;h1 id="my-projects">My Projects&lt;/h1>
-&lt;p>A collection of professional and personal projects that demonstrate my technical skills and problem-solving abilities.&lt;/p>
-&lt;h2 id="enterprise-solutions">Enterprise Solutions&lt;/h2>
-&lt;div class="project-card">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Shivanshu Singla</title><link>https://shivanshu27.github.io/my-personal-website/</link><description>Recent content on Shivanshu Singla</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sun, 08 Jan 2023 12:00:00 +0000</lastBuildDate><atom:link href="https://shivanshu27.github.io/my-personal-website/index.xml" rel="self" type="application/rss+xml"/><item><title>About Me</title><link>https://shivanshu27.github.io/my-personal-website/about/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/about/</guid><description>&lt;h2 id="professional-background"&gt;Professional Background&lt;/h2&gt;
+&lt;p&gt;I am a Senior Engineer at Evalueserve with expertise in developing full-stack applications using the MERN stack. Throughout my career, I have demonstrated proficiency in delivering scalable, high-performance applications across diverse domains including Generative AI solutions, real-money gaming platforms, enterprise dashboards, and blockchain applications.&lt;/p&gt;
+&lt;p&gt;I specialize in collaborating with cross-functional teams to deliver innovative solutions while ensuring system robustness and efficiency.&lt;/p&gt;
+&lt;h2 id="skills"&gt;Skills&lt;/h2&gt;
+&lt;h3 id="languages--frameworks"&gt;Languages &amp;amp; Frameworks&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;JavaScript Ecosystem&lt;/strong&gt;: Node.js, Express.js, Nest.js, React.js, Next.js, Web3.js, Ethers.js&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;TypeScript&lt;/strong&gt;: Strong typing for more robust applications&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Web Technologies&lt;/strong&gt;: HTML, CSS, jQuery, EJS&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Query Languages&lt;/strong&gt;: SQL, GraphQL&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Python&lt;/strong&gt;: FastAPI, NumPy, Pandas, Scikit-learn&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Blockchain&lt;/strong&gt;: Solidity for smart contract development&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="databases--tools"&gt;Databases &amp;amp; Tools&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;NoSQL&lt;/strong&gt;: MongoDB with Mongoose&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SQL&lt;/strong&gt;: PostgreSQL with Sequelize&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Caching&lt;/strong&gt;: Redis&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Containerization&lt;/strong&gt;: Docker&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;API Development&lt;/strong&gt;: REST APIs, Swagger&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Version Control&lt;/strong&gt;: Git, Bitbucket&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="cloud--devops"&gt;Cloud &amp;amp; DevOps&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Azure&lt;/strong&gt;: Blob Storage, Azure Portal, Azure Bastion&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Network Configuration&lt;/strong&gt;: Setting up secure infrastructure&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Server Deployments&lt;/strong&gt;: Managing deployment processes&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="work-experience"&gt;Work Experience&lt;/h2&gt;
+&lt;h3 id="senior-engineer"&gt;Senior Engineer&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Evalueserve SEZ Pvt. Ltd., Gurugram&lt;/strong&gt; | Dec 2023 – Present&lt;/p&gt;</description></item><item><title>Contact</title><link>https://shivanshu27.github.io/my-personal-website/contact/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/contact/</guid><description>&lt;h1 id="get-in-touch"&gt;Get In Touch&lt;/h1&gt;
+&lt;p&gt;I&amp;rsquo;m always open to discussing new projects, opportunities, or collaborations. Feel free to reach out to me through any of the following channels:&lt;/p&gt;
+&lt;h2 id="contact-information"&gt;Contact Information&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Email&lt;/strong&gt;: &lt;a href="mailto:shivanshu.singla27@gmail.com"&gt;shivanshu.singla27@gmail.com&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Phone&lt;/strong&gt;: (+91) 8168056871&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Location&lt;/strong&gt;: New Delhi, India&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="professional-profiles"&gt;Professional Profiles&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;LinkedIn&lt;/strong&gt;: &lt;a href="https://linkedin.com/in/shivanshusingla"&gt;linkedin.com/in/shivanshusingla&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;GitHub&lt;/strong&gt;: &lt;a href="https://github.com/Shivanshu27"&gt;github.com/Shivanshu27&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="contact-form"&gt;Contact Form&lt;/h2&gt;
+&lt;p&gt;If you prefer, you can also send me a message directly using the form below:&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;&lt;!-- raw HTML omitted --&gt;Send Message&lt;!-- raw HTML omitted --&gt;&lt;/p&gt;</description></item><item><title>Getting Started with Hugo: Building a Static Site</title><link>https://shivanshu27.github.io/my-personal-website/blog/getting-started-with-hugo/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/blog/getting-started-with-hugo/</guid><description>&lt;h1 id="getting-started-with-hugo-building-a-static-site"&gt;Getting Started with Hugo: Building a Static Site&lt;/h1&gt;
+&lt;p&gt;Hugo is a powerful static site generator written in Go. It&amp;rsquo;s known for its exceptional speed and flexibility. In this post, I&amp;rsquo;ll walk through the process of setting up a Hugo site from scratch, just like I did with this personal website.&lt;/p&gt;
+&lt;h2 id="why-hugo"&gt;Why Hugo?&lt;/h2&gt;
+&lt;p&gt;There are many static site generators available today (Jekyll, Gatsby, Eleventy, etc.), but Hugo has some distinct advantages:&lt;/p&gt;</description></item><item><title>Projects</title><link>https://shivanshu27.github.io/my-personal-website/projects/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/projects/</guid><description>&lt;h1 id="my-projects"&gt;My Projects&lt;/h1&gt;
+&lt;p&gt;A collection of professional and personal projects that demonstrate my technical skills and problem-solving abilities.&lt;/p&gt;
+&lt;h2 id="enterprise-solutions"&gt;Enterprise Solutions&lt;/h2&gt;
+&lt;div class="project-card"&gt;
  
  
- &lt;div class="project-content">
- &lt;h3>ComSights - Document Comparison Platform&lt;/h3>
- &lt;p>Architected a chat-based platform for precise document analysis, improving user efficiency by 30%. Engineered complex database schemas and integrated with Azure Blob Storage and Firebase Outlook authentication.&lt;/p>
+ &lt;div class="project-content"&gt;
+ &lt;h3&gt;ComSights - Document Comparison Platform&lt;/h3&gt;
+ &lt;p&gt;Architected a chat-based platform for precise document analysis, improving user efficiency by 30%. Engineered complex database schemas and integrated with Azure Blob Storage and Firebase Outlook authentication.&lt;/p&gt;
  
  
- &lt;div class="project-tags">
+ &lt;div class="project-tags"&gt;
  
- &lt;span class="tag">PostgreSQL&lt;/span>
+ &lt;span class="tag"&gt;PostgreSQL&lt;/span&gt;
  
- &lt;span class="tag"> Azure&lt;/span>
+ &lt;span class="tag"&gt; Azure&lt;/span&gt;
  
- &lt;span class="tag"> Firebase&lt;/span>
+ &lt;span class="tag"&gt; Firebase&lt;/span&gt;
  
- &lt;span class="tag"> RAG&lt;/span>
+ &lt;span class="tag"&gt; RAG&lt;/span&gt;
  
- &lt;span class="tag"> TypeScript&lt;/span>
+ &lt;span class="tag"&gt; TypeScript&lt;/span&gt;
  
- &lt;span class="tag"> React.js&lt;/span>
+ &lt;span class="tag"&gt; React.js&lt;/span&gt;
  
- &lt;span class="tag"> Node.js&lt;/span>
+ &lt;span class="tag"&gt; Node.js&lt;/span&gt;
  
- &lt;/div>
- 
- 
- &lt;div class="project-links">
+ &lt;/div&gt;
  
  
+ &lt;div class="project-links"&gt;
  
- &lt;/div>
- &lt;/div>
-&lt;/div>
+ 
+ 
+ &lt;/div&gt;
+ &lt;/div&gt;
+&lt;/div&gt;
 
-&lt;div class="project-card">
+&lt;div class="project-card"&gt;
  
  
- &lt;div class="project-content">
- &lt;h3>ViSense - Conference Analytics Platform&lt;/h3>
- &lt;p>A tool for market intelligence enabling insights from conference calls and events with 25% faster processing. Integrated Assembly AI for multilingual transcription and expanded user accessibility.&lt;/p></description></item></channel></rss>
+ &lt;div class="project-content"&gt;
+ &lt;h3&gt;ViSense - Conference Analytics Platform&lt;/h3&gt;
+ &lt;p&gt;A tool for market intelligence enabling insights from conference calls and events with 25% faster processing. Integrated Assembly AI for multilingual transcription and expanded user accessibility.&lt;/p&gt;</description></item></channel></rss>

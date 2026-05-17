@@ -1,14 +1,13 @@
-/* Custom CSS additions */
-body {
-  font-family: 'Inter', sans-serif;
+/* Custom overrides */
+
+/* Smooth link underlines on hover */
+.content a {
+  text-decoration: underline;
+  text-decoration-color: var(--primary-glow);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition);
 }
 
-.site-header {
-  border-bottom: 3px solid var(--primary-color);
+.content a:hover {
+  text-decoration-color: var(--primary);
 }
-
-.footer-content {
-  gap: 40px;
-}
-
-/* Additional customizations can go here */
