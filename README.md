@@ -4,6 +4,162 @@ A modern, responsive portfolio website built with [Hugo](https://gohugo.io/) and
 
 **Live:** [shivanshu27.github.io/my-personal-website](https://shivanshu27.github.io/my-personal-website/)
 
+---
+
+## How Hugo Works (Concepts)
+
+Hugo is a **static site generator** — it takes your Markdown content + HTML templates and compiles them into plain HTML/CSS/JS files that any web server can host. No database, no backend runtime.
+
+```mermaid
+flowchart LR
+    subgraph Input["📝 Source Files"]
+        MD["Markdown\n(content/)"]
+        TPL["HTML Templates\n(layouts/)"]
+        CSS["CSS / JS / Images\n(static/)"]
+        CFG["config.toml"]
+    end
+
+    HUGO["⚙️ Hugo\nBuild Engine"]
+
+    subgraph Output["📦 Output (public/)"]
+        HTML["Static HTML"]
+        ASSETS["CSS, JS, Images"]
+    end
+
+    MD --> HUGO
+    TPL --> HUGO
+    CSS --> HUGO
+    CFG --> HUGO
+    HUGO --> HTML
+    HUGO --> ASSETS
+```
+
+### Key Concepts
+
+| Concept | What it means |
+|---------|--------------|
+| **Content** | Markdown files in `content/` — each file becomes a page |
+| **Front Matter** | YAML/TOML metadata at the top of each `.md` file (`title`, `date`, `tags`) |
+| **Templates** | Go HTML templates in `layouts/` — define how content is rendered |
+| **Shortcodes** | Reusable HTML snippets you embed in Markdown (`{{</* project-card */>}}`) |
+| **Theme** | A bundled set of templates + assets (ours lives in `themes/portfolio/`) |
+| **baseURL** | The root URL of the site — Hugo prepends this to all links |
+| **Static** | Files in `static/` are copied as-is to the output (images, CSS, JS) |
+
+---
+
+## How This Project is Structured
+
+```mermaid
+flowchart TB
+    subgraph Config["⚙️ Configuration"]
+        CT["config.toml\n• Site title, author\n• Menu items\n• Social links\n• Theme selection"]
+    end
+
+    subgraph Content["📄 Content (Markdown)"]
+        HOME["_index.md\nHomepage"]
+        ABOUT["about/index.md\nProfessional background"]
+        PROJ["projects/index.md\nProject showcase"]
+        BLOG["blog/*.md\nTechnical posts"]
+        CONTACT["contact/index.md\nContact info & form"]
+    end
+
+    subgraph Theme["🎨 Theme: portfolio"]
+        BASE["baseof.html\n(Header + Footer shell)"]
+        IDX["index.html\n(Homepage layout)"]
+        LIST["list.html\n(Blog index)"]
+        SINGLE["single.html\n(Blog post)"]
+        SC["shortcodes/\nproject-card, contact-form"]
+    end
+
+    subgraph Static["🖼️ Static Assets"]
+        MCSS["css/main.css\nDesign system"]
+        CCSS["css/custom.css\nOverrides"]
+        JS["js/main.js\nInteractions"]
+        IMG["images/\nPhotos"]
+    end
+
+    Config --> HUGO["⚙️ Hugo Build"]
+    Content --> HUGO
+    Theme --> HUGO
+    Static --> HUGO
+
+    HUGO --> PUB["📦 public/\nReady to deploy"]
+
+    style Config fill:#1e293b,color:#e2e8f0,stroke:#6366f1
+    style Content fill:#1e293b,color:#e2e8f0,stroke:#6366f1
+    style Theme fill:#1e293b,color:#e2e8f0,stroke:#6366f1
+    style Static fill:#1e293b,color:#e2e8f0,stroke:#6366f1
+```
+
+---
+
+## Template Rendering Flow
+
+When Hugo builds a page, it uses a **template inheritance** model:
+
+```mermaid
+flowchart TB
+    BASE["baseof.html\n─────────────\n&lt;html&gt;\n  &lt;head&gt; meta, CSS, fonts &lt;/head&gt;\n  &lt;body&gt;\n    HEADER (nav)\n    {{ block 'main' }}\n    FOOTER\n  &lt;/body&gt;\n&lt;/html&gt;"]
+
+    IDX["index.html\n{{ define 'main' }}\n  Hero section\n  Skills grid\n  Recent blog posts"]
+
+    LIST["list.html\n{{ define 'main' }}\n  Page header\n  Blog post list"]
+
+    SINGLE["single.html\n{{ define 'main' }}\n  Page header\n  Article content\n  Post navigation"]
+
+    BASE -->|"Homepage /"| IDX
+    BASE -->|"List pages /blog/"| LIST
+    BASE -->|"Single pages /blog/post/"| SINGLE
+
+    SC_PC["{{< project-card >}}\nRendered inside\nMarkdown content"]
+    SC_CF["{{< contact-form >}}\nRendered inside\nMarkdown content"]
+
+    SINGLE -.->|"shortcodes"| SC_PC
+    SINGLE -.->|"shortcodes"| SC_CF
+    LIST -.->|"shortcodes"| SC_PC
+
+    style BASE fill:#4f46e5,color:#fff,stroke:#818cf8
+    style IDX fill:#0f172a,color:#e2e8f0,stroke:#6366f1
+    style LIST fill:#0f172a,color:#e2e8f0,stroke:#6366f1
+    style SINGLE fill:#0f172a,color:#e2e8f0,stroke:#6366f1
+```
+
+---
+
+## CI/CD & Deployment Pipeline
+
+```mermaid
+flowchart LR
+    DEV["🧑‍💻 Developer\ngit push to master"]
+    GHA["⚡ GitHub Actions\nhttps://github.com/\nShivanshu27/my-personal-website\n/actions"]
+    BUILD["🔨 Hugo Build\nhugo --minify"]
+    GHP["🌐 GitHub Pages\nServes gh-pages branch"]
+    USER["👀 Visitor\nhttps://shivanshu27.github.io\n/my-personal-website/"]
+
+    DEV -->|"push"| GHA
+    GHA -->|"checkout + setup"| BUILD
+    BUILD -->|"deploy to\ngh-pages branch"| GHP
+    GHP -->|"serves static files"| USER
+
+    style DEV fill:#1e293b,color:#e2e8f0,stroke:#6366f1
+    style GHA fill:#1e293b,color:#e2e8f0,stroke:#f59e0b
+    style BUILD fill:#4f46e5,color:#fff,stroke:#818cf8
+    style GHP fill:#1e293b,color:#e2e8f0,stroke:#10b981
+    style USER fill:#1e293b,color:#e2e8f0,stroke:#06b6d4
+```
+
+**Pipeline steps (`.github/workflows/hugo.yml`):**
+
+1. **Trigger** — Push to `master` branch
+2. **Checkout** — Clone repo with full history
+3. **Setup Hugo** — Install latest Hugo extended edition
+4. **Build** — Run `hugo --minify` → outputs to `./public/`
+5. **Deploy** — Push `./public/` contents to `gh-pages` branch via `peaceiris/actions-gh-pages`
+6. **Serve** — GitHub Pages automatically serves the `gh-pages` branch
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
