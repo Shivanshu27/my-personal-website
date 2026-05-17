@@ -20,22 +20,22 @@
 
 <section class="content-section">
   <div class="container">
-    <article class="content">
+    <article class="content" data-animate>
       {{ .Content }}
     </article>
-    
+
     {{ if eq .Section "blog" }}
     <div class="post-navigation">
       {{ if .PrevInSection }}
       <a class="prev" href="{{ .PrevInSection.Permalink }}">
-        <i class="fas fa-arrow-left"></i> 
+        <i class="fas fa-arrow-left"></i>
         <span>{{ .PrevInSection.Title | truncate 40 }}</span>
       </a>
       {{ end }}
-      
+
       {{ if .NextInSection }}
       <a class="next" href="{{ .NextInSection.Permalink }}">
-        <span>{{ .NextInSection.Title | truncate 40 }}</span> 
+        <span>{{ .NextInSection.Title | truncate 40 }}</span>
         <i class="fas fa-arrow-right"></i>
       </a>
       {{ end }}

@@ -1,98 +1,134 @@
 {{ define "main" }}
-<head>
-  <link rel="stylesheet" href="{{ .Site.BaseURL }}css/main.css">
-  <link rel="stylesheet" href="{{ .Site.BaseURL }}css/custom.css">
-</head>
 <section class="hero">
   <div class="container">
     <div class="hero-content">
-      <h1>{{ .Title }}</h1>
-      {{ .Content }}
-      
-      <div class="cta-buttons">
-        <a href="/my-personal-website/about/" class="btn btn-primary">About Me</a>
-        <a href="/my-personal-website/projects/" class="btn btn-secondary">View Projects</a>
+      <p class="hero-greeting"><span class="mono">&gt;</span> Hello, I'm</p>
+      <h1 class="hero-name">{{ .Site.Params.author }}</h1>
+      <h2 class="hero-title">{{ .Site.Params.tagline | default "Senior Engineer &amp; Full Stack Developer" }}</h2>
+      <p class="hero-desc">{{ .Site.Params.description }}</p>
+      <div class="hero-cta">
+        <a href="{{ "projects/" | relURL }}" class="btn btn-primary">
+          <i class="fas fa-code"></i> View Projects
+        </a>
+        <a href="{{ "contact/" | relURL }}" class="btn btn-outline-light">
+          <i class="fas fa-paper-plane"></i> Get In Touch
+        </a>
+      </div>
+      <div class="hero-social">
+        {{ with .Site.Params.github }}
+        <a href="{{ . }}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+        {{ end }}
+        {{ with .Site.Params.linkedin }}
+        <a href="{{ . }}" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
+        {{ end }}
+        {{ with .Site.Params.email }}
+        <a href="mailto:{{ . }}"><i class="fas fa-envelope"></i></a>
+        {{ end }}
       </div>
     </div>
   </div>
 </section>
 
-<section class="skills-section">
+<section class="section skills-section" id="skills">
   <div class="container">
-    <h2>Technical Skills</h2>
-    
+    <div class="section-header">
+      <h2 class="section-title"><span class="mono">//</span> Technical Skills</h2>
+      <p class="section-subtitle">Technologies and tools I work with</p>
+    </div>
+
     <div class="skills-grid">
-      <div class="skill-category">
-        <h3>Languages & Frameworks</h3>
-        <ul>
-          <li>JavaScript (Node.js, Express.js)</li>
-          <li>React.js, Next.js</li>
-          <li>Nest.js, EJS, jQuery</li>
-          <li>TypeScript</li>
-          <li>Python (FastAPI, NumPy)</li>
-          <li>Solidity (Blockchain)</li>
-          <li>HTML/CSS</li>
-          <li>SQL, GraphQL</li>
-        </ul>
+      <div class="skill-card" data-animate>
+        <div class="skill-icon"><i class="fas fa-laptop-code"></i></div>
+        <h3>Languages &amp; Frameworks</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">TypeScript</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">React.js</span>
+          <span class="skill-tag">Next.js</span>
+          <span class="skill-tag">Express.js</span>
+          <span class="skill-tag">Nest.js</span>
+          <span class="skill-tag">FastAPI</span>
+          <span class="skill-tag">Solidity</span>
+          <span class="skill-tag">SQL</span>
+          <span class="skill-tag">GraphQL</span>
+        </div>
       </div>
-      
-      <div class="skill-category">
-        <h3>Databases & Tools</h3>
-        <ul>
-          <li>MongoDB (Mongoose)</li>
-          <li>PostgreSQL (Sequelize)</li>
-          <li>Redis</li>
-          <li>Docker</li>
-          <li>REST APIs, Swagger</li>
-          <li>Git, Bitbucket</li>
-          <li>Web3.js, Ethers.js</li>
-        </ul>
+
+      <div class="skill-card" data-animate>
+        <div class="skill-icon"><i class="fas fa-database"></i></div>
+        <h3>Databases &amp; Tools</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">MongoDB</span>
+          <span class="skill-tag">PostgreSQL</span>
+          <span class="skill-tag">Redis</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">REST APIs</span>
+          <span class="skill-tag">Swagger</span>
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">Web3.js</span>
+          <span class="skill-tag">Ethers.js</span>
+        </div>
       </div>
-      
-      <div class="skill-category">
-        <h3>Cloud & DevOps</h3>
-        <ul>
-          <li>Azure Blob Storage</li>
-          <li>Azure Portal</li>
-          <li>Azure Bastion</li>
-          <li>Network Configuration</li>
-          <li>Server Deployments</li>
-          <li>CI/CD Pipelines</li>
-        </ul>
+
+      <div class="skill-card" data-animate>
+        <div class="skill-icon"><i class="fas fa-cloud"></i></div>
+        <h3>Cloud &amp; DevOps</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">Azure</span>
+          <span class="skill-tag">Blob Storage</span>
+          <span class="skill-tag">Azure Bastion</span>
+          <span class="skill-tag">CI/CD</span>
+          <span class="skill-tag">Docker</span>
+          <span class="skill-tag">GitHub Actions</span>
+        </div>
       </div>
-      
-      <div class="skill-category">
-        <h3>AI & Data Science</h3>
-        <ul>
-          <li>Pandas, Scikit-learn</li>
-          <li>RAG Architecture</li>
-          <li>Multi-agent AI</li>
-          <li>Machine Learning</li>
-          <li>Data Visualization</li>
-          <li>NLP & Computer Vision</li>
-        </ul>
+
+      <div class="skill-card" data-animate>
+        <div class="skill-icon"><i class="fas fa-brain"></i></div>
+        <h3>AI &amp; Data Science</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">RAG</span>
+          <span class="skill-tag">Multi-agent AI</span>
+          <span class="skill-tag">LangFlow</span>
+          <span class="skill-tag">Pandas</span>
+          <span class="skill-tag">Scikit-learn</span>
+          <span class="skill-tag">PyTorch</span>
+          <span class="skill-tag">NLP</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="recent-posts">
+<section class="section recent-posts-section">
   <div class="container">
-    <h2>Recent Blog Posts</h2>
-    
+    <div class="section-header">
+      <h2 class="section-title"><span class="mono">//</span> Latest Posts</h2>
+      <p class="section-subtitle">Thoughts on software engineering and technology</p>
+    </div>
+
     <div class="post-grid">
       {{ range first 3 (where .Site.RegularPages "Section" "blog") }}
-        <div class="post-card">
-          <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
-          <div class="post-meta">{{ .Date.Format "January 2, 2006" }}</div>
-          <p>{{ .Summary | truncate 150 }}</p>
-          <a href="{{ .Permalink }}" class="read-more">Read more →</a>
+      <article class="post-card" data-animate>
+        <div class="post-card-meta">
+          <time>{{ .Date.Format "Jan 2, 2006" }}</time>
+          {{ with .Params.tags }}
+          <div class="post-card-tags">
+            {{ range first 2 . }}<span>{{ . }}</span>{{ end }}
+          </div>
+          {{ end }}
         </div>
+        <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+        <p>{{ .Summary | truncate 120 }}</p>
+        <a href="{{ .Permalink }}" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+      </article>
       {{ end }}
     </div>
-    
-    <div class="text-center">
-      <a href="/my-personal-website/blog/" class="btn btn-outline">View All Posts</a>
+
+    <div class="section-cta">
+      <a href="{{ "blog/" | relURL }}" class="btn btn-outline">View All Posts</a>
     </div>
   </div>
 </section>

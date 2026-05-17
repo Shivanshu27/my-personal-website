@@ -10,7 +10,7 @@
     {{ if eq .Section "blog" }}
       <div class="post-list">
         {{ range .Pages }}
-        <article class="post-item">
+        <article class="post-item" data-animate>
           <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
           <div class="post-meta">
             <span class="date"><i class="far fa-calendar-alt"></i> {{ .Date.Format "January 2, 2006" }}</span>
@@ -26,7 +26,7 @@
           <div class="summary">
             {{ .Summary | truncate 250 }}
           </div>
-          <a href="{{ .Permalink }}" class="read-more">Read more →</a>
+          <a href="{{ .Permalink }}" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
         </article>
         {{ end }}
       </div>
@@ -34,9 +34,9 @@
       <div class="content">
         {{ .Content }}
       </div>
-      
+
       {{ range .Pages }}
-      <article class="list-item">
+      <article class="list-item" data-animate>
         <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
         <div class="summary">
           {{ .Summary | truncate 200 }}

@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
     <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="{{ .Site.Params.favicon | relURL }}">
-    
-    <!-- Styles -->
+
+    {{ with .Site.Params.favicon }}<link rel="icon" href="{{ . | relURL }}">{{ end }}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <!-- Custom CSS -->
     {{ range .Site.Params.customCSS }}
     <link rel="stylesheet" href="{{ . | relURL }}">
     {{ end }}
@@ -25,19 +21,21 @@
     <header class="site-header">
         <div class="container">
             <div class="header-inner">
-                <a href="{{ (index .Site.Menus.main 0).URL }}" class="logo">
-                    <span class="logo-text">{{ .Site.Title | truncate 20 }}</span>
+                <a href="{{ "/" | relURL }}" class="logo">
+                    <span class="logo-bracket">{</span>
+                    <span class="logo-text">{{ .Site.Params.author | default .Site.Title }}</span>
+                    <span class="logo-bracket">}</span>
                 </a>
-                
-                <nav class="main-nav">
+
+                <nav class="main-nav" id="main-nav">
                     <ul>
                         {{ range .Site.Menus.main }}
-                        <li><a href="{{ .URL }}" class="{{ if $.IsMenuCurrent "main" . }}active{{ end }}">{{ .Name }}</a></li>
+                        <li><a href="{{ .URL | relURL }}" class="{{ if $.IsMenuCurrent "main" . }}active{{ end }}">{{ .Name }}</a></li>
                         {{ end }}
                     </ul>
                 </nav>
-                
-                <button class="mobile-menu-toggle">
+
+                <button class="mobile-menu-toggle" id="menu-toggle" aria-label="Toggle menu">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -53,46 +51,46 @@
     <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-info">
-                    <h3>{{ .Site.Title }}</h3>
-                    <p>{{ .Site.Params.description }}</p>
+                <div class="footer-brand">
+                    <a href="{{ "/" | relURL }}" class="footer-logo">
+                        <span class="logo-bracket">{</span>
+                        <span class="logo-text">{{ .Site.Params.author }}</span>
+                        <span class="logo-bracket">}</span>
+                    </a>
+                    <p class="footer-tagline">{{ .Site.Params.description }}</p>
                 </div>
-                
-                <div class="footer-links">
-                    <h4>Quick Links</h4>
+
+                <div class="footer-nav">
+                    <h4>Navigation</h4>
                     <ul>
                         {{ range .Site.Menus.main }}
-                        <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+                        <li><a href="{{ .URL | relURL }}">{{ .Name }}</a></li>
                         {{ end }}
                     </ul>
                 </div>
-                
-                <div class="footer-social">
-                    <h4>Connect With Me</h4>
-                    <div class="social-icons">
+
+                <div class="footer-connect">
+                    <h4>Connect</h4>
+                    <div class="social-links">
                         {{ with .Site.Params.github }}
-                        <a href="{{ . }}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+                        <a href="{{ . }}" target="_blank" rel="noopener" aria-label="GitHub"><i class="fab fa-github"></i></a>
                         {{ end }}
-                        
                         {{ with .Site.Params.linkedin }}
-                        <a href="{{ . }}" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i></a>
+                        <a href="{{ . }}" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                         {{ end }}
-                        
                         {{ with .Site.Params.email }}
-                        <a href="mailto:{{ . }}"><i class="fas fa-envelope"></i></a>
+                        <a href="mailto:{{ . }}" aria-label="Email"><i class="fas fa-envelope"></i></a>
                         {{ end }}
                     </div>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; {{ now.Format "2006" }} {{ .Site.Params.author }}. All rights reserved.</p>
-                <p>Built with <span class="heart">❤</span> using <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a></p>
+                <p>&copy; {{ now.Format "2006" }} {{ .Site.Params.author }}. Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="/js/main.js"></script>
+    <script src="{{ "js/main.js" | relURL }}"></script>
 </body>
 </html>

@@ -1,132 +1,115 @@
-# Personal Website
+# Shivanshu Singla — Personal Portfolio
 
-A personal portfolio website built with Hugo showcasing projects, skills, and blogs.
+A modern, responsive portfolio website built with [Hugo](https://gohugo.io/) and auto-deployed to GitHub Pages.
 
-## Features
+**Live:** [shivanshu27.github.io/my-personal-website](https://shivanshu27.github.io/my-personal-website/)
 
-- Responsive design
-- Blog functionality
-- Project showcase
-- Contact form
-- Custom theme
+## Tech Stack
 
-## Prerequisites
+| Layer | Technology |
+|-------|-----------|
+| Static Site Generator | Hugo |
+| Theme | Custom `portfolio` theme (hand-built) |
+| Styling | CSS custom properties, Inter + JetBrains Mono |
+| Icons | Font Awesome 6 |
+| Deployment | GitHub Pages via GitHub Actions |
+| CI/CD | `.github/workflows/hugo.yml` — builds on push to `master`, deploys to `gh-pages` |
 
-- [Hugo](https://gohugo.io/getting-started/installing/) (v0.80.0 or newer)
-- Basic knowledge of Markdown and HTML/CSS
+## Project Structure
 
-## Getting Started
-
-### Local Development
-
-1. Clone this repository
-```bash
-git clone https://github.com/yourusername/personal-website.git
-cd personal-website
+```
+my-personal-website/
+├── config.toml                  # Site config (title, params, menus)
+├── netlify.toml                 # Netlify config (optional fallback)
+├── content/                     # All page content (Markdown)
+│   ├── _index.md                # Homepage content
+│   ├── about/index.md           # About page
+│   ├── blog/                    # Blog posts
+│   │   ├── _index.md
+│   │   └── getting-started-with-hugo.md
+│   ├── contact/index.md         # Contact page
+│   └── projects/index.md        # Projects showcase
+├── layouts/                     # Layout overrides
+│   └── partials/
+│       ├── head.html
+│       └── header.html
+├── static/                      # Static assets (served as-is)
+│   ├── css/
+│   │   ├── main.css             # Core stylesheet
+│   │   └── custom.css           # Custom overrides
+│   ├── images/
+│   └── js/
+│       └── main.js              # Client-side JS (menu, animations, form validation)
+├── themes/portfolio/            # Custom Hugo theme
+│   └── layouts/
+│       ├── index.html           # Homepage template
+│       ├── _default/
+│       │   ├── baseof.html      # Base layout (header, footer, meta)
+│       │   ├── list.html        # List pages (blog index, etc.)
+│       │   └── single.html      # Single content pages
+│       └── shortcodes/
+│           ├── contact-form.html
+│           └── project-card.html
+└── .github/workflows/
+    └── hugo.yml                 # CI/CD pipeline
 ```
 
-2. Start the Hugo development server
+## Local Development
+
+### Prerequisites
+
+- [Hugo](https://gohugo.io/installation/) v0.110.0 or later
+
+### Run Locally
+
 ```bash
+# Clone (uses SSH alias for personal GitHub account)
+git clone git@github-shivanshu:Shivanshu27/my-personal-website.git
+cd my-personal-website
+
+# Start dev server with drafts enabled
 hugo server -D
+
+# Open http://localhost:1313/my-personal-website/
 ```
 
-3. Open your browser and visit http://localhost:1313/
-
-### Development vs Production URLs
-
-- For local development, the site will be available at http://localhost:1313/
-- For GitHub Pages deployment, you may need to update the baseURL in config.toml to match your repository structure (e.g., "/personal-website/" for GitHub Pages project sites)
-- For custom domains or Netlify deployment, the baseURL should be set to "/" or your domain name
-
-### Building for Production
-
-To build the site for production:
+### Build for Production
 
 ```bash
-hugo
+hugo --minify
+# Output in ./public/
 ```
-
-This will generate the static site in the `public` directory.
-
-## Customization
-
-### Content
-
-- Edit files in the `content` directory to update the website content.
-- Blog posts can be added in the `content/blog` directory.
-- Projects can be updated in `content/projects/index.md`.
-
-### Configuration
-
-- Site configuration is in `hugo.toml`.
-- Update your personal information, social links, etc. in this file.
-
-### Theme
-
-The custom theme is in the `themes/portfolio` directory:
-
-- `layouts`: HTML templates
-- `static`: CSS, JavaScript, and other static assets
 
 ## Deployment
 
-### Netlify
+Fully automated — every push to `master` triggers:
 
-1. Connect your GitHub repository to Netlify
-2. Set the build command as `hugo`
-3. Set the publish directory as `public`
+1. **GitHub Actions** (`.github/workflows/hugo.yml`) builds the site with `hugo --minify`
+2. Built output is pushed to the `gh-pages` branch
+3. **GitHub Pages** serves `gh-pages` at the live URL
 
-### GitHub Pages
+No manual steps needed.
 
-1. Generate your site with `hugo`
-2. Push the contents of the `public` directory to the `gh-pages` branch
+## Customization
 
-### GitHub Pages Automated Deployment
+### Site Config
 
-This site is set up to deploy automatically to GitHub Pages when you push to the main branch:
+Edit `config.toml` to change site title, description, social links, and navigation menu.
 
-1. Create a GitHub repository for your website
-2. Push your code to the main branch:
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/yourusername/personal-website.git
-git push -u origin main
-```
+### Content
 
-3. Go to your repository on GitHub > Settings > Pages
-4. In the "Build and deployment" section:
-   - Under "Source", select "Deploy from a branch" 
-   - Under "Branch", select "gh-pages" and "/(root)" folder, then save
-   
-5. Your site will be available at `https://yourusername.github.io/personal-website/`
+All pages live in `content/` as Markdown. Add new blog posts under `content/blog/`.
 
-### Using a Custom Domain (Optional)
+### Styling
 
-1. Add your domain to GitHub Pages:
-   - Go to repository Settings > Pages
-   - Under "Custom domain", add your domain name and save
-   - Check "Enforce HTTPS" if desired
-   
-2. Update DNS settings at your domain registrar:
-   - For an apex domain (example.com), create an A record pointing to GitHub's IP addresses:
-     ```
-     185.199.108.153
-     185.199.109.153
-     185.199.110.153
-     185.199.111.153
-     ```
-   - For a subdomain (www.example.com), create a CNAME record pointing to yourusername.github.io
+- `static/css/main.css` — Design system (colors, layout, components)
+- `static/css/custom.css` — Quick overrides
 
-3. Create a CNAME file in your static directory:
-```bash
-echo "example.com" > static/CNAME
-```
+### Shortcodes
 
-4. Update the baseURL in config.toml to match your domain
+- `{{< project-card title="..." description="..." tags="..." >}}` — Project showcase card
+- `{{< contact-form >}}` — Contact form (Netlify Forms compatible)
 
 ## License
 
-MIT License
+MIT

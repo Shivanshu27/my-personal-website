@@ -6,10 +6,11 @@ theme = "portfolio"
 [params]
   author = "Shivanshu Singla"
   description = "Senior Engineer with expertise in MERN stack development and AI solutions"
+  tagline = "Senior Engineer · Full Stack Developer · AI Solutions"
   github = "https://github.com/Shivanshu27"
   linkedin = "https://linkedin.com/in/shivanshusingla"
   email = "shivanshu.singla27@gmail.com"
-  avatar = "/images/profile.jpg"
+  avatar = "/images/shivanshu_photo.jpg"
   favicon = "/images/favicon.png"
   truncate = false
   titleMaxLength = 100
