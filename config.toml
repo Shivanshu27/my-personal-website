@@ -5,8 +5,8 @@ theme = "portfolio"
 
 [params]
   author = "Shivanshu Singla"
-  description = "Senior Engineer with expertise in MERN stack development and AI solutions"
-  tagline = "Senior Engineer · Full Stack Developer · AI Solutions"
+  description = "Software Engineer @ Tractable — building AI-driven, cloud-native systems on AWS, GCP & Azure"
+  tagline = "Software Engineer @ Tractable · Full Stack & Cloud · AI/ML · IIT Kanpur"
   github = "https://github.com/Shivanshu27"
   linkedin = "https://linkedin.com/in/shivanshusingla"
   email = "shivanshu.singla27@gmail.com"
