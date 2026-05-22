@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Shivanshu Singla</title><link>https://shivanshu27.github.io/my-personal-website/</link><description>Recent content on Shivanshu Singla</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Sun, 08 Jan 2023 12:00:00 +0000</lastBuildDate><atom:link href="https://shivanshu27.github.io/my-personal-website/index.xml" rel="self" type="application/rss+xml"/><item><title>About Me</title><link>https://shivanshu27.github.io/my-personal-website/about/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/about/</guid><description>&lt;h2 id="professional-background"&gt;Professional Background&lt;/h2&gt;
+&lt;p&gt;I am a Software Engineer at &lt;strong&gt;Tractable&lt;/strong&gt; (Noida), building AI-driven, cloud-native systems across AWS, GCP, and Azure. With 5+ years of experience and a B.Tech. from IIT Kanpur, I architect full-stack and ML platforms that translate into measurable revenue — currently driving &lt;strong&gt;$140M+ in client opportunities&lt;/strong&gt; at Tractable through greenfield product features, secure infrastructure-as-code, and zero-downtime cloud migrations.&lt;/p&gt;
+&lt;p&gt;Previously, I was a Senior Engineer at Evalueserve where I architected Generative AI products (RAG, multi-agent systems) and won 1st place at the Microsoft Azure Hackathon 2024. Earlier, I built real-money gaming backends at SPC Games and enterprise DevOps dashboards at GIIT Solutions.&lt;/p&gt;</description></item><item><title>Contact</title><link>https://shivanshu27.github.io/my-personal-website/contact/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/contact/</guid><description>&lt;h1 id="get-in-touch"&gt;Get In Touch&lt;/h1&gt;
+&lt;p&gt;I&amp;rsquo;m always open to discussing new projects, opportunities, or collaborations. Feel free to reach out to me through any of the following channels:&lt;/p&gt;
+&lt;h2 id="contact-information"&gt;Contact Information&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Email&lt;/strong&gt;: &lt;a href="mailto:shivanshu.singla27@gmail.com"&gt;shivanshu.singla27@gmail.com&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Phone&lt;/strong&gt;: (+91) 8168056871&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Location&lt;/strong&gt;: New Delhi, India&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="professional-profiles"&gt;Professional Profiles&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;LinkedIn&lt;/strong&gt;: &lt;a href="https://linkedin.com/in/shivanshusingla"&gt;linkedin.com/in/shivanshusingla&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;GitHub&lt;/strong&gt;: &lt;a href="https://github.com/Shivanshu27"&gt;github.com/Shivanshu27&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="contact-form"&gt;Contact Form&lt;/h2&gt;
+&lt;p&gt;If you prefer, you can also send me a message directly using the form below:&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;&lt;!-- raw HTML omitted --&gt;Send Message&lt;!-- raw HTML omitted --&gt;&lt;/p&gt;</description></item><item><title>Getting Started with Hugo: Building a Static Site</title><link>https://shivanshu27.github.io/my-personal-website/blog/getting-started-with-hugo/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/blog/getting-started-with-hugo/</guid><description>&lt;h1 id="getting-started-with-hugo-building-a-static-site"&gt;Getting Started with Hugo: Building a Static Site&lt;/h1&gt;
+&lt;p&gt;Hugo is a powerful static site generator written in Go. It&amp;rsquo;s known for its exceptional speed and flexibility. In this post, I&amp;rsquo;ll walk through the process of setting up a Hugo site from scratch, just like I did with this personal website.&lt;/p&gt;
+&lt;h2 id="why-hugo"&gt;Why Hugo?&lt;/h2&gt;
+&lt;p&gt;There are many static site generators available today (Jekyll, Gatsby, Eleventy, etc.), but Hugo has some distinct advantages:&lt;/p&gt;</description></item><item><title>Projects</title><link>https://shivanshu27.github.io/my-personal-website/projects/</link><pubDate>Sun, 08 Jan 2023 12:00:00 +0000</pubDate><guid>https://shivanshu27.github.io/my-personal-website/projects/</guid><description>&lt;h1 id="my-projects"&gt;My Projects&lt;/h1&gt;
+&lt;p&gt;A collection of professional and personal projects that demonstrate my technical skills and problem-solving abilities.&lt;/p&gt;
+&lt;h2 id="tractable--cloud-aiml--full-stack"&gt;Tractable — Cloud, AI/ML &amp;amp; Full-Stack&lt;/h2&gt;
+&lt;div class="project-card"&gt;
+ 
+ 
+ &lt;div class="project-content"&gt;
+ &lt;h3&gt;RAIS On-Premise Vehicle Interchange Service ($120M&amp;#43; revenue opportunity)&lt;/h3&gt;
+ &lt;p&gt;Architected and deployed a containerized vehicle interchange service on client&amp;#39;s GCP Cloud Run with end-to-end Harness CI/CD across Tractable dev, client staging, and prod (100% deploy success). Engineered multi-layer security with KMS envelope encryption (DEK &amp;#43; KEK, AES-GCM), service account impersonation, and obfuscation layers protecting 3 global VIN decoder API keys. Built distroless Docker images cutting attack surface by 60%, and authored Terraform IaC across 3 GCP projects with 4 log-based metrics and Cloud Monitoring dashboards, reducing manual deploy steps by 95%.&lt;/p&gt;</description></item></channel></rss>

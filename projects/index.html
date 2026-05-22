@@ -1,0 +1,92 @@
+<!doctype html><html lang=en-us><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Projects | Shivanshu Singla</title><meta name=description content="Software Engineer @ Tractable — building AI-driven, cloud-native systems on AWS, GCP & Azure"><link rel=icon href=/images/favicon.png><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css><link rel=stylesheet href=/my-personal-website/css/main.css><link rel=stylesheet href=/css/custom.css></head><body><header class=site-header><div class=container><div class=header-inner><a href=/my-personal-website/ class=logo><span class=logo-bracket>{</span>
+<span class=logo-text>Shivanshu Singla</span>
+<span class=logo-bracket>}</span></a><nav class=main-nav id=main-nav><ul><li><a href=/my-personal-website/>Home</a></li><li><a href=/my-personal-website/about/>About</a></li><li><a href=/my-personal-website/projects/>Projects</a></li><li><a href=/my-personal-website/blog/>Blog</a></li><li><a href=/my-personal-website/contact/>Contact</a></li></ul></nav><button class=mobile-menu-toggle id=menu-toggle aria-label="Toggle menu">
+<span></span>
+<span></span>
+<span></span></button></div></div></header><main><section class=page-header><div class=container><h1>Projects</h1></div></section><section class=content-section><div class=container><article class=content data-animate><h1 id=my-projects>My Projects</h1><p>A collection of professional and personal projects that demonstrate my technical skills and problem-solving abilities.</p><h2 id=tractable--cloud-aiml--full-stack>Tractable — Cloud, AI/ML & Full-Stack</h2><div class=project-card><div class=project-content><h3>RAIS On-Premise Vehicle Interchange Service ($120M+ revenue opportunity)</h3><p>Architected and deployed a containerized vehicle interchange service on client's GCP Cloud Run with end-to-end Harness CI/CD across Tractable dev, client staging, and prod (100% deploy success). Engineered multi-layer security with KMS envelope encryption (DEK + KEK, AES-GCM), service account impersonation, and obfuscation layers protecting 3 global VIN decoder API keys. Built distroless Docker images cutting attack surface by 60%, and authored Terraform IaC across 3 GCP projects with 4 log-based metrics and Cloud Monitoring dashboards, reducing manual deploy steps by 95%.</p><div class=project-tags><span class=tag>Python</span>
+<span class=tag>Docker</span>
+<span class=tag>GCP Cloud Run</span>
+<span class=tag>Cloud KMS</span>
+<span class=tag>Secret Manager</span>
+<span class=tag>Harness CI/CD</span>
+<span class=tag>Terraform</span></div><div class=project-links></div></div></div><div class=project-card><div class=project-content><h3>ATIC Client Onboarding — APP Review Flow ($5M+ new client engagement)</h3><p>Onboarded ATIC as Tractable's first-ever APP Review Flow client with zero knowledge-transfer; raised ingestion success rate from 21% to 98% (+77 pp) across 100+ production claims via version-aware artefact filtering, presigned-URL refresh, and TR_081/TR_082 failure-mode handling. Architected greenfield Contention Report full-stack feature (10 React components, 6,000+ LOC, 1,300+ unit/integration tests) with server-side PDF generation via @react-pdf/renderer and zero DB migrations. Designed APP's first AWS Step Functions ingestion state machine with cross-account S3 (STS AssumeRole) and SNS to SQS to Lambda fan-out, eliminating ~15 hrs/week of manual claim creation.</p><div class=project-tags><span class=tag>TypeScript</span>
+<span class=tag>React 18</span>
+<span class=tag>Remix v2</span>
+<span class=tag>Node.js</span>
+<span class=tag>PostgreSQL (JSONB)</span>
+<span class=tag>Drizzle ORM</span>
+<span class=tag>@react-pdf/renderer</span>
+<span class=tag>AWS Step Functions</span>
+<span class=tag>Lambda</span>
+<span class=tag>S3</span>
+<span class=tag>SNS/SQS</span>
+<span class=tag>EventBridge</span>
+<span class=tag>OpenCV</span>
+<span class=tag>DecisionRules</span>
+<span class=tag>Vitest</span></div><div class=project-links></div></div></div><div class=project-card><div class=project-content><h3>Property Automation & Estimation Services ($8M+ product migration value)</h3><p>Led Kubernetes to AWS ECS Fargate migration of 3 production ML services for NTT client acquisition: Property Typhoon (OpenCLIP ViT-L-14-336 + Ray Serve, 934 MB model), Property Automation (FastAPI + 70+ scikit-learn models), and Image Anonymization (serverless PyTorch Lambda). Built multi-environment GitHub Actions CI/CD with OIDC auth and cross-account role assumption across 3 AWS accounts. Engineered React 18 + Vite Cognito admin SPA fronted by CloudFront + Route53 + ACM + WAFv2. Migrated 5+ private Python packages from Nexus to GitHub SSH deploy keys (ED25519, Docker BuildKit SSH mounts); optimized Lambda Layer from 280 MB to 148 MB (47%).</p><div class=project-tags><span class=tag>Python</span>
+<span class=tag>FastAPI</span>
+<span class=tag>Ray Serve</span>
+<span class=tag>PyTorch</span>
+<span class=tag>scikit-learn</span>
+<span class=tag>AWS ECS Fargate</span>
+<span class=tag>Lambda</span>
+<span class=tag>SAM</span>
+<span class=tag>CloudFront</span>
+<span class=tag>Route53</span>
+<span class=tag>WAFv2</span>
+<span class=tag>GitHub Actions OIDC</span>
+<span class=tag>Docker BuildKit</span>
+<span class=tag>React 18</span>
+<span class=tag>Vite</span>
+<span class=tag>Mantine UI</span>
+<span class=tag>Terraform</span></div><div class=project-links></div></div></div><div class=project-card><div class=project-content><h3>SCA Claims Audit Automation Platform ($12M+ annual leakage reduction)</h3><p>Architected end-to-end claims audit system combining rule-based NA Review pipeline with LLM-powered freestyle analysis across 5 modular pipeline stages (PDF to MPOC to S3 to Marcel API), cutting manual audit time 90% (15+ hrs to 1 hr) with 92% leakage-detection accuracy across 25+ claims and an interactive Lovable UI dashboard for stakeholder drill-down.</p><div class=project-tags><span class=tag>Python</span>
+<span class=tag>Flask</span>
+<span class=tag>OpenAI API</span>
+<span class=tag>AWS S3</span>
+<span class=tag>Lovable UI</span>
+<span class=tag>MPOC Platform</span></div><div class=project-links></div></div></div><h2 id=evalueserve--generative-ai--enterprise-saas>Evalueserve — Generative AI & Enterprise SaaS</h2><div class=project-card><div class=project-content><h3>ComSights — Document Comparison Platform</h3><p>Architected a chat-based document comparison platform with RAG over complex schemas and Azure integrations, improving analyst efficiency by 30%. Won 1st place at Microsoft Azure Hackathon 2024.</p><div class=project-tags><span class=tag>PostgreSQL</span>
+<span class=tag>Azure</span>
+<span class=tag>Firebase</span>
+<span class=tag>RAG</span>
+<span class=tag>TypeScript</span>
+<span class=tag>React.js</span>
+<span class=tag>Node.js</span></div><div class=project-links></div></div></div><div class=project-card><div class=project-content><h3>ViSense — Conference Analytics Platform</h3><p>Conference analytics platform with multilingual Assembly AI transcription enabling 25% faster market-intelligence processing, supporting 300+ active users.</p><div class=project-tags><span class=tag>Assembly AI</span>
+<span class=tag>Node.js</span>
+<span class=tag>React.js</span>
+<span class=tag>Azure</span>
+<span class=tag>Docker</span></div><div class=project-links></div></div></div><div class=project-card><div class=project-content><h3>PowerGen — Presentation Generation Platform</h3><p>Pioneered an AI-driven presentation generator producing client-ready outputs in 4–6 minutes (200+ users), automating data extraction and intelligent templating.</p><div class=project-tags><span class=tag>Node.js</span>
+<span class=tag>React.js</span>
+<span class=tag>Azure</span>
+<span class=tag>PostgreSQL</span>
+<span class=tag>Python</span>
+<span class=tag>SERP API</span></div><div class=project-links></div></div></div><div class=project-card><div class=project-content><h3>Genie — AI Marketplace Platform</h3><p>A one-stop marketplace for custom RAG and multi-agent AI applications, enabling rapid productization of internal LLM workflows.</p><div class=project-tags><span class=tag>LangFlow</span>
+<span class=tag>Multi-agent AI</span>
+<span class=tag>RAG</span>
+<span class=tag>Python</span></div><div class=project-links></div></div></div><h2 id=gaming--web-applications>Gaming & Web Applications</h2><div class=project-card><div class=project-content><h3>Rummy Game Server & Admin Panel (SPC Games)</h3><p>Engineered rummy game-server sequence-finding logic and shipped admin panel with optimized MongoDB queries, boosting product-management efficiency by 35%. Implemented cron-based selective backup system for data reliability.</p><div class=project-tags><span class=tag>TypeScript</span>
+<span class=tag>Node.js</span>
+<span class=tag>Express.js</span>
+<span class=tag>MongoDB</span>
+<span class=tag>RabbitMQ</span>
+<span class=tag>jQuery</span>
+<span class=tag>EJS</span></div><div class=project-links></div></div></div><div class=project-card><div class=project-content><h3>Corporate Site Revamp on Next.js (SPC Games)</h3><p>Revamped corporate website on Next.js with SEO optimizations, growing organic web traffic by 20%.</p><div class=project-tags><span class=tag>Next.js</span>
+<span class=tag>React</span>
+<span class=tag>SEO</span></div><div class=project-links></div></div></div><h2 id=enterprise-devops-dashboards>Enterprise DevOps Dashboards</h2><div class=project-card><div class=project-content><h3>Plutora Dashboards (GIIT Solutions)</h3><p>Customized Plutora dashboards integrating JIRA/ADO/Rally pipelines, enhanced UI with Ext JS for 15% better usability, and authored Swagger-documented REST APIs.</p><div class=project-tags><span class=tag>TypeScript</span>
+<span class=tag>Node.js</span>
+<span class=tag>Ext JS</span>
+<span class=tag>REST APIs</span>
+<span class=tag>Swagger</span></div><div class=project-links></div></div></div><h2 id=blockchain-projects>Blockchain Projects</h2><div class=project-card><div class=project-content><h3>NFT Marketplace</h3><p>Developed ERC721 NFT smart contracts deployed via Hardhat and integrated with a React frontend using ethers.js — enabling 1,000+ on-chain transactions in the first month.</p><div class=project-tags><span class=tag>Solidity</span>
+<span class=tag>Hardhat</span>
+<span class=tag>Web3.js</span>
+<span class=tag>Ethers.js</span>
+<span class=tag>React</span></div><div class=project-links></div></div></div><h2 id=data-science-projects>Data Science Projects</h2><div class=project-card><div class=project-content><h3>Best Artworks Image Classification</h3><p>Trained a PyTorch CNN/ResNet on a 50-class imbalanced art-images dataset, lifting accuracy from 43% to 65%.</p><div class=project-tags><span class=tag>Python</span>
+<span class=tag>PyTorch</span>
+<span class=tag>CNN</span>
+<span class=tag>ResNet</span>
+<span class=tag>Computer Vision</span></div><div class=project-links><a href=https://jovian.ai/shivanshusingla27/deep-learning-project-3 target=_blank rel=noopener class="btn btn-sm btn-demo"><i class="fas fa-external-link-alt"></i> Live Demo</a></div></div></div><div class=project-card><div class=project-content><h3>Home Credit Default Risk</h3><p>Benchmarked Logistic Regression, Decision Tree, Random Forest, and XGBM classifiers with hyperparameter tuning, achieving 86% accuracy.</p><div class=project-tags><span class=tag>Python</span>
+<span class=tag>Scikit-learn</span>
+<span class=tag>Pandas</span>
+<span class=tag>Machine Learning</span></div><div class=project-links><a href=https://jovian.ai/shivanshusingla27/my-ml-project1 target=_blank rel=noopener class="btn btn-sm btn-demo"><i class="fas fa-external-link-alt"></i> Live Demo</a></div></div></div></article></div></section></main><footer class=site-footer><div class=container><div class=footer-content><div class=footer-brand><a href=/my-personal-website/ class=footer-logo><span class=logo-bracket>{</span>
+<span class=logo-text>Shivanshu Singla</span>
+<span class=logo-bracket>}</span></a><p class=footer-tagline>Software Engineer @ Tractable — building AI-driven, cloud-native systems on AWS, GCP & Azure</p></div><div class=footer-nav><h4>Navigation</h4><ul><li><a href=/my-personal-website/>Home</a></li><li><a href=/my-personal-website/about/>About</a></li><li><a href=/my-personal-website/projects/>Projects</a></li><li><a href=/my-personal-website/blog/>Blog</a></li><li><a href=/my-personal-website/contact/>Contact</a></li></ul></div><div class=footer-connect><h4>Connect</h4><div class=social-links><a href=https://github.com/Shivanshu27 target=_blank rel=noopener aria-label=GitHub><i class="fab fa-github"></i></a>
+<a href=https://linkedin.com/in/shivanshusingla target=_blank rel=noopener aria-label=LinkedIn><i class="fab fa-linkedin-in"></i></a>
+<a href=mailto:shivanshu.singla27@gmail.com aria-label=Email><i class="fas fa-envelope"></i></a></div></div></div><div class=footer-bottom><p>&copy; 2026 Shivanshu Singla. Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a>.</p></div></div></footer><script src=/my-personal-website/js/main.js></script></body></html>
