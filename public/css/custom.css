@@ -1,0 +1,13 @@
+/* Custom overrides */
+
+/* Smooth link underlines on hover */
+.content a {
+  text-decoration: underline;
+  text-decoration-color: var(--primary-glow);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition);
+}
+
+.content a:hover {
+  text-decoration-color: var(--primary);
+}
