@@ -1,10 +1,10 @@
 ---
 title: "Shivanshu Singla"
-date: 2023-01-08T12:00:00-00:00
+date: 2026-05-22T12:00:00-00:00
 draft: false
 ---
 
-## Senior Engineer | Full Stack Developer
+## Software Engineer @ Tractable | IIT Kanpur | AI-driven, Cloud-native Systems on AWS, GCP & Azure
 
 Welcome to my personal website!
 
@@ -12,9 +12,9 @@ Welcome to my personal website!
 
 ### What I Do
 
-- Dynamic Full Stack Developer with extensive expertise in the MERN (MongoDB/PostgreSQL, Express.js, React.js, Node.js) stack.
-- Adept at delivering scalable, high-performance applications across diverse domains.
-- Specialize in crafting Generative AI solutions, real-money gaming platforms, tailored enterprise dashboards, and end-to-end full-stack applications.
-- Proficient in collaborating with cross-functional teams to deliver innovative solutions while ensuring system robustness and efficiency.
+- Full Stack Software Engineer (IIT Kanpur) with 5+ years building scalable, cloud-native systems across AWS, GCP, and Azure.
+- Architect end-to-end AI/ML services, greenfield product features, and secure infrastructure-as-code — currently driving **$140M+ in revenue opportunities** at Tractable.
+- Strong in Python (FastAPI, Ray Serve, PyTorch, OpenAI), TypeScript/React (Remix v2, React 18, Node.js), distributed systems, event-driven architectures, and CI/CD automation.
+- Specialize in greenfield full-stack features, event-driven cloud architecture (AWS Step Functions, Lambda, S3, SNS/SQS), secure cloud migrations (Kubernetes → ECS Fargate), cryptography/DevSecOps (KMS envelope encryption), and Generative AI (RAG & multi-agent).
 
 [Learn more about me](about/) or [check out my projects](projects/).

@@ -1,90 +1,100 @@
 ---
 title: "About Me"
-date: 2023-01-08T12:00:00-00:00
+date: 2026-05-22T12:00:00-00:00
 draft: false
 ---
 
 ## Professional Background
 
-I am a Senior Engineer at Evalueserve with expertise in developing full-stack applications using the MERN stack. Throughout my career, I have demonstrated proficiency in delivering scalable, high-performance applications across diverse domains including Generative AI solutions, real-money gaming platforms, enterprise dashboards, and blockchain applications.
+I am a Software Engineer at **Tractable** (Noida), building AI-driven, cloud-native systems across AWS, GCP, and Azure. With 5+ years of experience and a B.Tech. from IIT Kanpur, I architect full-stack and ML platforms that translate into measurable revenue — currently driving **$140M+ in client opportunities** at Tractable through greenfield product features, secure infrastructure-as-code, and zero-downtime cloud migrations.
 
-I specialize in collaborating with cross-functional teams to deliver innovative solutions while ensuring system robustness and efficiency.
+Previously, I was a Senior Engineer at Evalueserve where I architected Generative AI products (RAG, multi-agent systems) and won 1st place at the Microsoft Azure Hackathon 2024. Earlier, I built real-money gaming backends at SPC Games and enterprise DevOps dashboards at GIIT Solutions.
 
 ## Skills
 
-### Languages & Frameworks
-- **JavaScript Ecosystem**: Node.js, Express.js, Nest.js, React.js, Next.js, Web3.js, Ethers.js
-- **TypeScript**: Strong typing for more robust applications
-- **Web Technologies**: HTML, CSS, jQuery, EJS
-- **Query Languages**: SQL, GraphQL
-- **Python**: FastAPI, NumPy, Pandas, Scikit-learn
-- **Blockchain**: Solidity for smart contract development
-
-### Databases & Tools
-- **NoSQL**: MongoDB with Mongoose
-- **SQL**: PostgreSQL with Sequelize
-- **Caching**: Redis
-- **Containerization**: Docker
-- **API Development**: REST APIs, Swagger
-- **Version Control**: Git, Bitbucket
-
 ### Cloud & DevOps
-- **Azure**: Blob Storage, Azure Portal, Azure Bastion
-- **Network Configuration**: Setting up secure infrastructure
-- **Server Deployments**: Managing deployment processes
+- **AWS**: ECS Fargate, Lambda, Step Functions, SAM/CloudFormation, S3, SNS/SQS, EventBridge, AppConfig, CloudFront, Route53, ACM, WAFv2, VPC, IAM, CloudWatch
+- **GCP**: Cloud Run, Cloud KMS, Secret Manager, Artifact Registry
+- **CI/CD & IaC**: Harness CI/CD, GitHub Actions (OIDC, cross-account, SSH deploy keys), Terraform
+- **Containers**: Docker (distroless, BuildKit SSH mounts)
+- **Azure**: Bare-metal server deployments
+
+### Languages & Frameworks
+- **Python**: FastAPI, Flask, Ray Serve, PyTorch, scikit-learn, NumPy, Pandas, OpenAI API
+- **TypeScript / JavaScript**: Node.js, Remix v2, React 18, Next.js, Express.js, Nest.js, Vite, Web3.js, Ethers.js
+- **Other**: SQL, GraphQL, Solidity, HTML/CSS
+
+### Architecture & Patterns
+Microservices, REST APIs, Event-driven systems, Serverless, KMS envelope encryption (DEK/KEK, AES-GCM), Cross-account IAM, Zero-downtime deployments, Multi-environment CI/CD, RAG & Multi-agent AI
+
+### Databases & Storage
+PostgreSQL (JSONB), MongoDB, Redis, AWS S3
+
+### Tools & Testing
+Drizzle ORM, @react-pdf/renderer, Turbo monorepo, Vitest, OpenCV, DecisionRules SaaS, Mantine UI, Lovable UI, Git, Bitbucket, Postman, Swagger, Figma
 
 ## Work Experience
 
+### Software Engineer
+**Tractable, Noida** | May 2025 – Present
+
+- **RAIS On-Premise Vehicle Interchange Service** ($120M+ revenue opportunity) — Architected a containerized service on GCP Cloud Run with end-to-end Harness CI/CD; engineered multi-layer security with KMS envelope encryption (DEK + KEK, AES-GCM) protecting 3 global VIN decoder API keys; authored Terraform IaC across 3 GCP projects, reducing manual deploy steps by 95%.
+- **ATIC Client Onboarding – APP Review Flow** ($5M+ new client engagement) — Onboarded ATIC as Tractable's first-ever APP Review Flow client; raised ingestion success rate from **21% → 98% (+77 pp)** across 100+ production claims. Architected greenfield **Contention Report** full-stack feature (10 React components, 6,000+ LOC, 1,300+ tests, server-side PDF generation via @react-pdf/renderer, zero DB migrations). Designed APP's first AWS Step Functions ingestion state machine with cross-account S3 (STS AssumeRole) and SNS → SQS → Lambda fan-out, eliminating ~15 hrs/week of manual work.
+- **Property Automation & Estimation Services** ($8M+ product migration value) — Led Kubernetes → AWS ECS Fargate migration of 3 production ML services (Property Typhoon with OpenCLIP ViT-L-14-336 + Ray Serve, Property Automation with 70+ scikit-learn models, Image Anonymization on serverless PyTorch Lambda) for NTT client acquisition. Built multi-account GitHub Actions OIDC CI/CD, migrated 5+ private Python packages from Nexus to GitHub SSH deploy keys, optimized Lambda Layer 280 MB → 148 MB (47%).
+- **SCA Claims Audit Automation Platform** ($12M+ annual leakage reduction) — Architected end-to-end claims audit system combining rule-based NA Review pipeline with LLM-powered freestyle analysis (OpenAI API) across 5 modular pipeline stages, cutting manual audit time **90%** (15+ hrs → 1 hr) with 92% leakage-detection accuracy.
+
 ### Senior Engineer
-**Evalueserve SEZ Pvt. Ltd., Gurugram** | Dec 2023 – Present
+**Evalueserve SEZ Pvt. Ltd., Gurugram** | Dec 2023 – May 2025
 
-Working on multiple innovative projects:
+*Domain: Generative AI & Enterprise SaaS*
 
-- **ComSights**: Intelligent Document Comparison Platform using PostgreSQL, Azure, Firebase, RAG, TypeScript, React.js, and Node.js
-- **ViSense**: Conference Analytics Platform with Assembly AI, Node.js, React.js, Azure
-- **PowerGen**: Presentation Generation Platform utilizing Node.js, React.js, Azure, PostgreSQL, Python
-- **Genie**: AI Marketplace Platform leveraging Open-source LangFlow AI, Multi-agent AI, and RAG
+- Architected **ComSights** — chat-based document comparison platform with RAG over complex schemas and Azure integrations, improving analyst efficiency 30%. **1st place, Microsoft Azure Hackathon 2024**.
+- Built **ViSense** conference analytics platform with multilingual transcription enabling 25% faster market-intelligence processing (300+ active users).
+- Shipped **PowerGen** presentation generator producing client-ready outputs in 4–6 minutes (200+ users).
+- Pioneered **Genie** — AI marketplace for custom RAG and multi-agent applications.
 
 ### Backend Developer
 **SPC Games, New Delhi** | Dec 2022 – Oct 2023
 
-- Developed admin panels and backend systems for gaming platforms
-- Implemented backup systems and game servers for rummy games
-- Revamped company website using Next.js, increasing web traffic by 20%
+*Domain: Real-money Gaming Platform*
+
+- Engineered rummy game-server sequence-finding logic and shipped admin panel with optimized MongoDB queries, boosting product-management efficiency 35%.
+- Implemented cron-based selective backup system for data reliability.
+- Revamped corporate site on Next.js with SEO optimizations, growing organic web traffic 20%.
 
 ### Software Engineer
 **GIIT Solutions, Gurugram** | Feb 2022 – Nov 2022
 
-- Customized Plutora dashboards for seamless integration with tools like JIRA, ADO, and Rally
-- Enhanced UI with Ext JS scripting, improving client usability ratings by 15%
+*Domain: Enterprise DevOps Dashboards*
 
-### Blockchain Developer
-**Freelance** | June 2021 – Dec 2021
+- Customized Plutora dashboards integrating JIRA/ADO/Rally pipelines, enhanced UI with Ext JS for 15% better usability, and authored Swagger-documented REST APIs.
 
-- Developed ERC721 NFT contracts for NFT marketplaces
-- Integrated smart contracts with React frontend using ethers.js
+### Blockchain & Data Science (Freelance)
+**June 2021 – Dec 2021**
 
-### Reviewer
-**Ripple Effect Learning Solutions, New Delhi** | July 2020 – May 2021
-
-- Enhanced LMS modules for managing CRUD operations of question banks
+- **NFT Marketplace** — ERC721 Solidity contracts with Hardhat deployment and React integration, enabling 1,000+ on-chain transactions in the first month.
+- Data science projects in PyTorch (image classification) and scikit-learn (credit risk).
 
 ## Education
 
-- **B.Tech.**, I.I.T. Kanpur, Kanpur
-- **Intermediate** - CBSE (CGPA - 9.04/10)
-- **Matriculation** - CBSE (CGPA - 9.1/10)
+- **B.Tech., Bioengineering** — I.I.T. Kanpur
+- **Intermediate**, CBSE (CGPA 9.04/10)
+- **Matriculation**, CBSE (CGPA 9.1/10)
 
 ## Achievements
 
 - 1st place, Microsoft Azure Hackathon, Evalueserve, 2024
 - Project Ranked 2, Material Science Lab, I.I.T. Kanpur
-- Merit-cum-means scholarship, I.I.T. Kanpur
-- Secured top 0.63% in IIT-JEE and top 0.21% in AIEEE 2009
-- 2nd and 3rd positions in National Level Science Talent Search Examination
+- Merit-cum-Means Scholarship, I.I.T. Kanpur
+- Top 0.63% in IIT-JEE & top 0.21% in AIEEE 2009; 99.9+ percentile in UPSC
+- International exposure — short stint in Dubai working with a 19-nationality team
 
 ## Certifications
 
 - Full Stack Web Developer (codedamn)
 - Ethereum Blockchain Developer Bootcamp with Solidity
 - Data Science with Python bootcamp (Jovian)
+
+## Outside Work
+
+Badminton, swimming, horse riding, nature hiking, nature documentaries, and non-fiction books. Looking for fast-paced environments where I can build products that scale, add value to human life, and create revenue for the organization.
