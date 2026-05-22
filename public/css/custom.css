@@ -11,3 +11,28 @@
 .content a:hover {
   text-decoration-color: var(--primary);
 }
+
+/* Project card bullets */
+.project-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 16px;
+}
+
+.project-bullets li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.project-bullets li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--primary);
+  font-weight: 700;
+}

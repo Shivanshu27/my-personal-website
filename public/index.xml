@@ -30,4 +30,44 @@
  
  &lt;div class="project-content"&gt;
  &lt;h3&gt;RAIS On-Premise Vehicle Interchange Service ($120M&amp;#43; revenue opportunity)&lt;/h3&gt;
- &lt;p&gt;Architected and deployed a containerized vehicle interchange service on client&amp;#39;s GCP Cloud Run with end-to-end Harness CI/CD across Tractable dev, client staging, and prod (100% deploy success). Engineered multi-layer security with KMS envelope encryption (DEK &amp;#43; KEK, AES-GCM), service account impersonation, and obfuscation layers protecting 3 global VIN decoder API keys. Built distroless Docker images cutting attack surface by 60%, and authored Terraform IaC across 3 GCP projects with 4 log-based metrics and Cloud Monitoring dashboards, reducing manual deploy steps by 95%.&lt;/p&gt;</description></item></channel></rss>
+ &lt;p&gt;Containerized vehicle interchange service deployed on client&amp;#39;s GCP Cloud Run with end-to-end Harness CI/CD and multi-layer security.&lt;/p&gt;
+ 
+ &lt;ul class="project-bullets"&gt;
+ &lt;li&gt;Architected and deployed the service across Tractable dev, client staging, and prod with end-to-end Harness CI/CD pipeline automating build, security scanning, regression, and multi-environment promotion (100% deploy success).&lt;/li&gt;&lt;li&gt;Engineered multi-layer security with &lt;strong&gt;KMS envelope encryption (DEK + KEK, AES-GCM)&lt;/strong&gt;, service account impersonation, and obfuscation layers protecting 3 global VIN decoder API keys; built distroless Docker images reducing attack surface by 60%.&lt;/li&gt;&lt;li&gt;Authored Terraform IaC across 3 GCP projects (Registry, Service Accounts, IAM) and 4 log-based metrics + Cloud Monitoring dashboards tracking 100% VIN API usage, reducing manual deploy steps by 95%.&lt;/li&gt;
+ &lt;/ul&gt;
+ 
+ 
+ 
+ &lt;div class="project-tags"&gt;
+ 
+ &lt;span class="tag"&gt;Python&lt;/span&gt;
+ 
+ &lt;span class="tag"&gt; Docker&lt;/span&gt;
+ 
+ &lt;span class="tag"&gt; GCP Cloud Run&lt;/span&gt;
+ 
+ &lt;span class="tag"&gt; Cloud KMS&lt;/span&gt;
+ 
+ &lt;span class="tag"&gt; Secret Manager&lt;/span&gt;
+ 
+ &lt;span class="tag"&gt; Harness CI/CD&lt;/span&gt;
+ 
+ &lt;span class="tag"&gt; Terraform&lt;/span&gt;
+ 
+ &lt;/div&gt;
+ 
+ 
+ &lt;div class="project-links"&gt;
+ 
+ 
+ 
+ &lt;/div&gt;
+ &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="project-card"&gt;
+ 
+ 
+ &lt;div class="project-content"&gt;
+ &lt;h3&gt;ATIC Client Onboarding — APP Review Flow ($5M&amp;#43; new client engagement)&lt;/h3&gt;
+ &lt;p&gt;Onboarded ATIC as Tractable&amp;#39;s first-ever APP Review Flow client with zero knowledge-transfer.&lt;/p&gt;</description></item></channel></rss>

@@ -7,7 +7,12 @@
   
   <div class="project-content">
     <h3>{{ .Get "title" }}</h3>
-    <p>{{ .Get "description" }}</p>
+    {{ with .Get "description" }}<p>{{ . }}</p>{{ end }}
+    {{ with .Get "bullets" }}
+    <ul class="project-bullets">
+      {{ range split . "|" }}<li>{{ . | strings.TrimSpace | safeHTML }}</li>{{ end }}
+    </ul>
+    {{ end }}
     
     {{ with .Get "tags" }}
     <div class="project-tags">
