@@ -6,8 +6,6 @@ tags: ["hugo", "static site", "web development"]
 categories: ["tutorials"]
 ---
 
-# Getting Started with Hugo: Building a Static Site
-
 Hugo is a powerful static site generator written in Go. It's known for its exceptional speed and flexibility. In this post, I'll walk through the process of setting up a Hugo site from scratch, just like I did with this personal website.
 
 ## Why Hugo?

@@ -31,7 +31,7 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   --section-padding: 100px;
-  --container-max: 1100px;
+  --container-max: 1200px;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
@@ -607,16 +607,24 @@ img    { max-width: 100%; height: auto; }
   margin-bottom: 8px;
 }
 
-.page-header .post-meta { color: var(--text-muted); }
+.page-header .post-meta {
+  color: var(--text-muted);
+  justify-content: center;
+}
 .page-header .post-meta a { color: var(--primary-light); }
 
 /* ===== CONTENT ===== */
-.content-section { padding: 80px 0; }
+.content-section { padding: 72px 0; }
 
 .content {
-  max-width: 800px;
-  line-height: 1.8;
-  font-size: 1.05rem;
+  max-width: 1040px;
+  margin: 0 auto;
+  line-height: 1.85;
+  font-size: 1.08rem;
+}
+
+.content p {
+  margin-bottom: 1.4rem;
 }
 
 .content h1, .content h2, .content h3, .content h4 {
@@ -631,13 +639,14 @@ img    { max-width: 100%; height: auto; }
 .content pre {
   background: var(--bg-dark);
   color: var(--text-inverse);
-  padding: 20px;
-  border-radius: 10px;
+  padding: 24px;
+  border-radius: 12px;
   overflow-x: auto;
-  margin: 24px 0;
+  margin: 28px 0;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .content code {
@@ -665,6 +674,11 @@ img    { max-width: 100%; height: auto; }
 .content li { margin-bottom: 8px; }
 
 /* Blog list */
+.post-list {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
 .post-list .post-item {
   padding-bottom: 32px;
   margin-bottom: 32px;
@@ -696,9 +710,10 @@ img    { max-width: 100%; height: auto; }
 .post-navigation {
   display: flex;
   justify-content: space-between;
-  margin-top: 48px;
+  margin: 48px auto 0 auto;
   padding-top: 24px;
   border-top: 1px solid var(--border);
+  max-width: 1040px;
 }
 
 .post-navigation a {
