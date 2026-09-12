@@ -43,44 +43,4 @@
     {{ end }}
   </div>
 </section>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    if (typeof mermaid !== "undefined") {
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "default",
-        securityLevel: "loose",
-        themeVariables: {
-          fontFamily: "Inter, sans-serif",
-          fontSize: "14px"
-        }
-      });
-      document.querySelectorAll(".mermaid").forEach(function (el) {
-        try {
-          mermaid.run({ nodes: [el] });
-        } catch (err) {
-          console.warn("Mermaid error:", err);
-        }
-      });
-    }
-  });
-</script>
-<style>
-  .mermaid {
-    display: flex;
-    justify-content: center;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 1.5rem 0;
-    margin: 1.5rem auto;
-    overflow-x: auto;
-  }
-  .mermaid svg {
-    max-width: 100%;
-    height: auto;
-  }
-</style>
 {{ end }}

@@ -12,27 +12,27 @@ Yet, conversations around **SQL vs NoSQL** are too often treated like a religiou
 
 That framing is fundamentally broken.
 
-```mermaid
-flowchart TD
-  DB["Databases"] --> Rel["Relational (SQL)"]
-  DB --> NoSQL["NoSQL Families"]
-  Rel --> R1["Tables, rows, columns"]
-  Rel --> R2["Normalized schema & JOINs"]
-  Rel --> R3["ACID transactions"]
-  Rel --> R4["Postgres & MySQL"]
-  NoSQL --> N1["Document: MongoDB"]
-  NoSQL --> N2["Key-Value: Redis, DynamoDB"]
-  NoSQL --> N3["Wide-Column: Cassandra"]
-  NoSQL --> N4["Graph: Neo4j"]
+```text
+                            DATABASE LANDSCAPE
+                                    │
+        ┌───────────────────────────┴───────────────────────────┐
+        ▼                                                       ▼
+   RELATIONAL (SQL)                                           NoSQL
+  +--------------------------+               +--------------------------------------+
+  | • Tables, rows, columns  |               | • Document (MongoDB) — JSON trees    |
+  | • Rigid schema-on-write  |               | • Key-Value (Redis) — Hash map       |
+  | • Strict ACID & JOINs    |               | • Wide-Column (Cassandra) — Big data |
+  | • Postgres, MySQL        |               | • Graph (Neo4j) — Nodes & edges      |
+  +--------------------------+               +--------------------------------------+
 ```
 
-As a senior software engineer, you don't pick a database because it's trendy. You pick a database based on four concrete axes:
-1. **The shape of your data** (relational, tree, key-value, graph)
-2. **Your read and write access patterns**
-3. **Your consistency and transaction guarantees**
-4. **The operational complexity at scale**
+As a senior software engineer, you don't pick a database because it's trendy. You pick a database based on four concrete foundational axes:
+1. **The Shape of Your Data** (relational, hierarchical tree, key-value, graph)
+2. **Your Read and Write Access Patterns** (ratios, throughput, latency profiles, range vs point queries)
+3. **Your Consistency and Transaction Guarantees** (ACID vs BASE, PACELC trade-offs)
+4. **The Operational Complexity at Scale** (connection pooling, failover risks, resharding, online migrations)
 
-In this post, we’ll cut through the hype using the foundational principles from Martin Kleppmann’s *Designing Data-Intensive Applications* (DDIA) and real-world production lessons. We’ll look at the data models, storage engines under the hood (B-Trees vs LSM-Trees), concurrency models, distributed scaling realities, and why the modern answer is often surprising.
+In this post, we’ll cut through the marketing using the foundational principles from Martin Kleppmann’s *Designing Data-Intensive Applications* (DDIA) and real-world production engineering lessons.
 
 ---
 
@@ -45,85 +45,118 @@ Before diving into query planners and disk pages, let's establish a clean physic
 - **A Document Store is a Labelled Box per Customer.**  
   Every customer gets a self-contained box (a JSON document). Inside that box is their profile, their delivery addresses, their payment methods, and their order history. Pulling everything about Customer `42` takes **one reach into one box**. It is instantaneous and requires zero joins. But what if you want to answer: *"Which customers bought Product X last Tuesday?"* You now have to open **every single box** in the warehouse.
 
-```mermaid
-flowchart LR
-  subgraph Relational["Relational (Filing Cabinet)"]
-    U["users table"] -->|"JOIN"| O["orders table"]
-    O -->|"JOIN"| I["items table"]
-  end
-  subgraph Document["Document (Labelled Boxes)"]
-    B1["User 1 Box: profile, orders"]
-    B2["User 2 Box: profile, orders"]
-  end
+```text
+RELATIONAL (NORMALIZED)                        DOCUMENT (EMBEDDED)
++-------------------------------+              +-----------------------------------+
+|  users                        |              |  users collection                 |
+|  id | name  | city            |              |  {                                |
+|  1  | Aanya | Pune            |              |    "_id": 1,                      |
++-------+-----------------------+              |    "name": "Aanya",               |
+        | 1-to-N                               |    "city": "Pune",                |
+        v                                      |    "orders": [                    |
++-------------------------------+              |      { "total": 4200, ... },      |
+|  orders                       |              |      { "total": 1500, ... }       |
+|  id | user_id | total         |              |    ]                              |
+|  10 | 1       | 4200          |              |  }                                |
+|  11 | 1       | 1500          |              +-----------------------------------+
++-------------------------------+              (One disk fetch grabs user + orders)
+(Requires SQL JOIN at query time)
 ```
 
 Neither is universally "better." If your workload mostly loads a single aggregate at a time, document boxes are brilliant. If your data is interconnected and your queries slice across entities unpredictably, the filing cabinet wins every time.
 
 ---
 
-## 2. The 4 Data Models (DDIA Chapter 2 Lens)
+## 2. The 4 Fundamental Axes Every Senior Engineer Evaluates
 
+When architecting a data layer, senior engineers avoid tool names until they evaluate four concrete dimensions:
+
+### Axis 1: The Shape of Your Data
 Martin Kleppmann points out that data models are the single most influential decision in software: **they shape not just how we store bytes, but how we are allowed to think about the problem.**
 
-```mermaid
-flowchart TD
-  DM["Data Models"] --> Rel["Relational"]
-  DM --> Doc["Document"]
-  DM --> KV["Key-Value"]
-  DM --> WC["Wide-Column"]
-  DM --> Gr["Graph"]
-  Rel --> R1["Normalized tables & SQL JOINs"]
-  Doc --> D1["Self-contained JSON trees (1:N)"]
-  KV --> K1["Distributed hash map (Opaque blobs)"]
-  WC --> W1["Partition key + clustering (Query-first)"]
-  Gr --> G1["First-class nodes & edges (Traversal)"]
-```
+- **Relational ($M:N$ and $N:1$)**: Real-world business data rarely lives in isolation. An order links to a user, a payment method, multiple shipping addresses, and inventory SKUs. Normalizing this data ("store each fact once, reference it everywhere") prevents update anomalies. When an address or product name changes, you update one row.
+- **Hierarchical Trees ($1:N$)**: If an entity is self-contained and rarely accessed outside its parent (e.g., an author's resume and job history, or a chat message with user reactions), a document tree fits naturally.
+- **Key-Value**: Opaque values addressed by a single unique ID. The database does not know or care what is inside the payload.
+- **Graph ($M:N$ with deep traversals)**: When the *relationships themselves* are the data (social follower networks, fraud rings, dependency trees). Walking edges in a graph engine is orders of magnitude faster than writing 8-level recursive SQL Common Table Expressions (`WITH RECURSIVE`).
 
-### A. The Relational Model (SQL)
-- **Core Concept**: Normalized tables, fixed schemas (**schema-on-write**), and foreign keys stitched together at query time with `JOIN`.
-- **The Strength**: **Many-to-Many ($M:N$) and Many-to-One relationships.** If multiple employees belong to an organization, you store the organization once and reference its ID. If the organization renames itself, you update exactly **one row**.
-- **Declarative Power**: With SQL, you specify **what** you want (`SELECT * FROM orders WHERE total > 100`), not **how** to get it. The database's query optimizer decides whether to do an index scan, bitmap scan, or parallel hash join. When hardware or indexing changes, your application code doesn't change.
+### Axis 2: Read vs Write Access Patterns
+A database that excels at read-heavy workloads can crumble under an append-only write firehose:
+- **Read-to-Write Ratio**: A content website might have a $100:1$ read-to-write ratio; an IoT sensor ingestion pipeline has a $1:100$ write-to-read ratio.
+- **Query Granularity**: Do you fetch a single record by primary key (`WHERE id = ?`), a contiguous slice of time (`WHERE created_at BETWEEN ? AND ?`), or aggregated summaries across millions of records (`GROUP BY`)?
+- **Join Cardinality**: Are you stitching 5 tables together on every request, or loading a single pre-aggregated document blob in one disk seek?
 
-### B. The Document Model (MongoDB, Couchbase)
-- **Core Concept**: Self-contained hierarchical trees (JSON/BSON).
-- **The Object-Relational Impedance Mismatch**: Application code naturally thinks in nested objects (a user object containing a list of contact emails and addresses). Flattening that into 4 normalized SQL tables and reassembling it with ORMs creates friction. A document store lets you write and read the object directly.
-- **The Locality Win**: A document is stored as a contiguous chunk on disk. Loading an entire order with 15 line items requires **one sequential disk read**, whereas a relational DB might hop across multiple disk pages to fulfill the join.
-- **Where Documents Break**: The minute your data has heavy **Many-to-Many** connections. If you embed product details inside every user's order document, changing a product title means updating millions of user documents (or accepting update anomalies). If you use manual references instead, your application code ends up reimplementing joins poorly over multiple network round-trips.
+### Axis 3: Consistency and Transaction Guarantees
+Does your business logic tolerate temporary staleness?
+- **Strict Invariants (ACID)**: In billing, inventory, and seat booking, double-spending or reading partial uncommitted states is a catastrophic bug. You need serializability, row locking, and atomic commits.
+- **Eventual Convergence (BASE)**: For social feeds, likes counters, and recommendation views, showing a count that is 2 seconds behind is completely harmless. Giving up immediate cross-node synchronization allows distributed systems to stay available and fast.
 
-| Relationship Type | Example | Best Fit | Why |
-| :--- | :--- | :--- | :--- |
-| **One-to-Many ($1:N$)** | A resume $\rightarrow$ past jobs | **Document** | High locality, rarely accessed independently. |
-| **Many-to-One ($N:1$)** | Employees $\rightarrow$ Department | **Relational** | Normalize department; change title in 1 place. |
-| **Many-to-Many ($M:N$)** | Students $\leftrightarrow$ Courses | **Relational** | Join tables cleanly model intersections. |
-| **Deep Recursive Graph** | Friends-of-friends, fraud rings | **Graph** | Direct pointer traversal; avoids nested SQL CTEs. |
-
-### C. Key-Value & Wide-Column Stores
-- **Key-Value (Redis, DynamoDB)**: Giant distributed hash maps (`key → blob`). Ultra-low latency, trivial to partition horizontally, but you cannot query on fields inside the value without scanning everything. Perfect for sessions, caches, and idempotency tokens.
-- **Wide-Column (Cassandra, ScyllaDB, Bigtable)**: Rows are organized by a **partition key** and ordered by a **clustering key**. Cassandra does not allow arbitrary joins; you design the physical table specifically around **one query** ("query-first modeling"). In exchange, you get predictable single-digit millisecond writes that scale linearly to hundreds of nodes.
+### Axis 4: Operational Complexity at Scale
+Any database is easy to run when your dataset fits in RAM on a single staging server. The senior distinction is knowing what breaks in production:
+- **Connection Limits**: Postgres forks a backend process per connection; 500 app pods can easily exhaust database connection pools without **PgBouncer**.
+- **Failover Risks**: When an async read replica is promoted to primary during a network partition, un-replicated writes can be permanently lost or cause split-brain data divergence.
+- **Resharding Pain**: Scaling a relational database horizontally (sharding) requires custom routing tiers and destroys cross-shard joins and multi-row transactions.
 
 ---
 
-## 3. Under the Hood: Storage Engines (DDIA Chapter 3)
+## 3. Schema-on-Write vs Schema-on-Read: The Flexibility Trade-off
 
-Junior engineers choose databases by their API. Senior engineers look at how the engine reads and writes bytes on storage.
+One of the most defining divides between relational and document databases is **when the schema is enforced**.
 
-At the lowest level, all databases grapple with one fundamental physics problem: **random disk I/O is slow, sequential disk I/O is fast.** The two dominant database architectures solve this in opposite ways:
+```text
+SCHEMA-ON-WRITE (Relational SQL)               SCHEMA-ON-READ (Document NoSQL)
+  [Incoming Insert Payload]                      [Incoming Insert Payload]
+              │                                              │
+              ▼                                              ▼
+  +-----------------------+                      +-----------------------+
+  | DB Schema Validator   |                      | Directly written to   |
+  | (Checks types & cols) |                      | disk as-is (BSON/JSON)|
+  +-----------+-----------+                      +-----------+-----------+
+              │                                              │
+        ┌─────┴─────┐                                        ▼
+       YES          NO                           [Application Read Layer]
+        │           │                            if (doc.address &&
+        ▼           ▼                                doc.address.city) { ... }
+   [Saved to disk] [ERROR 400: Rejected!]        (Code handles legacy variations)
+```
 
-```mermaid
-flowchart TD
-  subgraph BTree["Page-Oriented: B-Tree (Postgres, MySQL)"]
-    BP["Fixed-size 4KB Pages on Disk"]
-    BW["WAL (Write-Ahead Log)"]
-    BP -->|Update in place| BP
-    BW -->|Crash recovery| BP
-  end
-  subgraph LSM["Log-Structured: LSM-Tree (Cassandra, RocksDB)"]
-    MT["In-Memory Memtable (Sorted)"]
-    SST["Immutable SSTables on Disk"]
-    BF["Bloom Filters"]
-    MT -->|Flush| SST
-    SST -->|Compaction| SST
-  end
+### The Analogy: A Printed Form vs A Blank Notebook
+- **Schema-on-Write (Relational)** is a printed governmental form with predefined boxes. If you try to write outside the box or input text where a date is expected, the clerk immediately **rejects** the form. Modifying the form requires reprinting forms for everyone (**an `ALTER TABLE` migration**).
+- **Schema-on-Read (Document)** is a blank notebook. You can write whatever fields you want in whatever order. But whoever opens the notebook later to read it has to decipher inconsistent handwritings and missing fields.
+
+### The Trade-off in Practice
+| Dimension | Schema-on-Write (SQL) | Schema-on-Read (Document) |
+| :--- | :--- | :--- |
+| **Enforcement Point** | Database engine on `INSERT`/`UPDATE` | Application code on `SELECT`/`find` |
+| **Language Equivalent** | Statically-typed (Rust, TypeScript, Go) | Dynamically-typed (Python, JavaScript) |
+| **Schema Evolution** | Explicit DDL migrations (`ALTER TABLE`) | Implicit: just write new JSON keys |
+| **Corrupted / Partial Data** | Impossible at DB level (constraints hold) | High risk: legacy docs lack new keys |
+| **Best Used For** | Core domain models, transactional entities | Rapidly evolving payloads, external API feeds |
+
+> **The Senior Insight**: "Schemaless" is a marketing myth. There is no such thing as a schemaless application—there are only systems where the database enforces the schema, and systems where your application code is forced to enforce it defensively (`if (doc.address && doc.address.street) ...`).
+
+---
+
+## 4. Under the Hood: Storage Engines (DDIA Chapter 3)
+
+Junior engineers choose databases by their API syntax. Senior engineers choose them by how they read and write bytes on physical storage.
+
+All databases grapple with one physical reality: **random disk I/O is slow, sequential disk I/O is fast.** The two dominant database storage engine families solve this in opposite ways:
+
+```text
+         B-TREE (Page-Oriented)                       LSM-TREE (Log-Structured)
+   Used in: Postgres, MySQL, Oracle              Used in: Cassandra, RocksDB, ScyllaDB
+
+   Write Path:                                   Write Path:
+   1. Append intent to WAL                       1. Append to Commit Log
+   2. Overwrite 4KB Page in place                2. Write to Memtable (In-RAM, sorted)
+                                                 3. Flush to immutable SSTables on disk
+   +----------+        +----------+
+   | 4KB Page | -----> | 4KB Page | (Overwritten)+---------------+
+   +----------+        +----------+              | Memtable(RAM) | ---> [SSTable 1] (Disk)
+                                                 +---------------+ ---> [SSTable 2] (Disk)
+   Read Path:                                                           ^
+   Traverse tree down to leaf                    Read Path:             | Compaction
+   Root ---> Branch ---> Leaf (~3-4 hops)        Memtable ---> Bloom ---> SSTables
 ```
 
 ### A. Page-Oriented B-Trees (The Workhorse of SQL)
@@ -142,21 +175,21 @@ flowchart TD
 - **Bloom Filters**: To prevent a search for a non-existent key from checking every SSTable on disk, LSM-trees use in-memory **Bloom filters** to instantly rule out absent files with zero I/O.
 - **The Performance Profile**:
   - **Writes are blisteringly fast**: Writes are pure sequential appends to RAM and disk.
-  - **Reads have a tail latency risk**: Reads might have to check the memtable and several SSTable levels before finding the newest version. During heavy background compaction, p99 latency can spike.
+  - **Reads have a tail latency risk**: Reads might have to check the memtable and several SSTable levels before finding the newest version. During heavy background compaction, tail latency (p99) can spike.
 
-| Dimension | **B-Tree (Relational Default)** | **LSM-Tree (Cassandra / RocksDB)** |
+| Dimension | B-Tree (Relational Default) | LSM-Tree (Cassandra / RocksDB) |
 | :--- | :--- | :--- |
 | **Write Path** | Slower (Random page writes + WAL + page splits) | **Blazing (Sequential RAM + append-only disk)** |
 | **Read Path** | **Deterministic & Fast (3–4 page lookups)** | Can be slower (checks multiple SSTable tiers) |
 | **Space Efficiency** | Lower (fragmentation from half-empty pages) | **Higher (compacted, sequential, gzipped blocks)** |
-| **Tail Latency ($p99$)** | Stable and steady | Spikier (compaction competes for disk I/O) |
+| **Tail Latency (p99)** | Stable and steady | Spikier (compaction competes for disk I/O) |
 | **Concurrency / Locks** | **Easy (lock one page or row in place)** | Harder (a key exists in multiple versions across files) |
 
 ---
 
-## 4. The Consistency Spectrum: ACID vs BASE, CAP, and PACELC
+## 5. The Consistency Spectrum: ACID vs BASE, CAP, and PACELC
 
-The consistency guarantees of a database dictate how your application deals with concurrency and network partitions.
+The consistency guarantees of a database dictate how your application handles concurrency and network partitions.
 
 ### The Truth About ACID (DDIA Chapter 7)
 Most developers repeat the acronym without inspecting what it actually guarantees:
@@ -175,11 +208,20 @@ Distributed NoSQL stores often adopt the **BASE** philosophy:
 ### The PACELC Upgrade to CAP
 The classic CAP theorem says that when a **Network Partition ($P$)** occurs, you must choose between **Consistency ($C$)** and **Availability ($A$)**.
 
-```mermaid
-flowchart TD
-  P{"Network Partition (P)?"}
-  P -->|Yes| PC["Choose Consistency (C) or Availability (A)"]
-  P -->|No / Normal| EL["Else (E): Choose Latency (L) or Consistency (C)"]
+```text
+                       +-----------------------------+
+                       |   Network Partition (P)?    |
+                       +--------------+--------------+
+                                      |
+                     +----------------+----------------+
+                     | YES                             | NO (Normal State)
+                     v                                 v
+        +-------------------------+       +-------------------------+
+        | Trade (A) vs (C)        |       | Trade (L) vs (C)        |
+        | Under partition:        |       | In normal times:        |
+        | • CP: refuse stale read |       | • PC/EC: Postgres waits |
+        | • AP: serve stale fast  |       | • PA/EL: Cassandra runs |
+        +-------------------------+       +-------------------------+
 ```
 
 Daniel Abadi formulated the **PACELC** theorem to capture what happens the other 99.9% of the time when the network is completely healthy:
@@ -191,22 +233,24 @@ $$\text{If } \mathbf{P} \text{ (Partition) } \rightarrow \mathbf{A} \text{ or } 
 
 ---
 
-## 5. Scaling: Replication vs Partitioning (Sharding)
+## 6. Scaling: Replication vs Partitioning (Sharding)
 
 A common junior trap is conflating replication with sharding. They are orthogonal strategies that solve completely different problems:
 
-```mermaid
-flowchart TD
-  subgraph Replication["Replication (DDIA Ch 5)"]
-    direction LR
-    R1["Leader"] -->|"replicates same data"| R2["Follower 1"]
-    R1 -->|"replicates same data"| R3["Follower 2"]
-  end
-  subgraph Partitioning["Partitioning / Sharding (DDIA Ch 6)"]
-    direction LR
-    S1["Shard 0 (Users A-M)"]
-    S2["Shard 1 (Users N-Z)"]
-  end
+```text
+ REPLICATION (Same data on N nodes)             SHARDING (Different slices of data)
+ 
+           +--------------+                             +--------------+
+           | Primary (W)  |                             | Query Router |
+           +------+-------+                             +------+-------+
+                  |                                            |
+         +--------+--------+                          +--------+--------+
+         | (Async stream)  |                          |                 |
+         v                 v                          v                 v
+  +--------------+  +--------------+           +--------------+  +--------------+
+  | Read Replica |  | Read Replica |           | Shard 0 (A-M)|  | Shard 1 (N-Z)|
+  +--------------+  +--------------+           +--------------+  +--------------+
+  Goal: High availability & read scaling       Goal: High write throughput & capacity
 ```
 
 - **Replication**: Storing **copies of the same data** across multiple machines.
@@ -224,24 +268,35 @@ flowchart TD
 
 ---
 
-## 6. The Modern Convergence: Why Postgres is Often the Best NoSQL
+## 7. The Modern Convergence: Why Postgres is Often the Best NoSQL
 
 In the early 2010s, developers fled relational databases because schemas were rigid and adding a column to a 100-million row table could lock the database for hours.
 
 Today, the landscape has radically converged:
 
-```mermaid
-flowchart LR
-  subgraph Converged["PostgreSQL Hybrid Model"]
-    C1["Structured Columns: id, user_id, created_at"]
-    C2["JSONB Document Column: payload, metadata"]
-  end
-  Converged --> GIN["GIN Index: Index inside JSON attributes"]
+```text
+  +-------------------------------------------------------------------------+
+  |                       POSTGRESQL HYBRID MODEL                           |
+  +-----------------------------------+-------------------------------------+
+  |       Structured Columns          |        JSONB Document Column        |
+  |    (ACID, FKs, Schema-on-Write)   |     (Schema-on-Read, Indexable)     |
+  +-----------------------------------+-------------------------------------+
+  |  id: 101                          |  metadata: {                        |
+  |  user_id: 42 (FK -> users.id)     |    "shipping": {"carrier": "DHL"},  |
+  |  status: "dispatched"             |    "device": "mobile_app",          |
+  |  created_at: 2026-09-12           |    "risk_score": 0.02               |
+  |                                   |  }                                  |
+  +-----------------------------------+-------------------------------------+
+                                         |
+                                         v Indexed with GIN
+                                  +--------------+
+                                  |  GIN Index   | (Sub-millisecond nested queries)
+                                  +--------------+
 ```
 
 Postgres introduced **`JSONB`**—a decomposed binary JSON storage format that supports:
 - Rich document indexing via **GIN (Generalized Inverted Indexes)**.
-- Sub-millisecond queries inside nested JSON keys (`WHERE payload @> '{"status": "active"}'`).
+- Sub-millisecond queries inside nested JSON keys (`WHERE metadata @> '{"shipping": {"carrier": "DHL"}}'`).
 - Atomic row updates, transactional integrity, and joins against relational tables.
 
 ```sql
@@ -261,27 +316,42 @@ SELECT * FROM customer_orders
 WHERE metadata @> '{"shipping": {"carrier": "DHL"}}';
 ```
 
-By leveraging `JSONB`, you get the schema flexibility of MongoDB alongside the battle-tested ACID transactions, foreign keys, and analytical joins of Postgres—**without the operational burden of running two separate databases**.
+By leveraging `JSONB`, you get the schema-on-read flexibility of MongoDB alongside the battle-tested ACID transactions, foreign keys, and analytical joins of Postgres—**without the operational burden of running two separate databases**.
 
 ---
 
-## 7. The Senior Decision Tree
+## 8. The Senior Decision Tree
 
 When asked *"SQL or NoSQL?"* in an architectural review or system design interview, never start with a tool name. Walk through the access patterns systematically:
 
-```mermaid
-flowchart TD
-  Start["Analyze Data Shape & Access Patterns"] --> Q1{"Connected data & recursive graph traversals?"}
-  Q1 -->|Yes| Graph["Graph Database (Neo4j, Neptune)"]
-  Q1 -->|No| Q2{"Multi-row ACID & complex joins needed?"}
-  Q2 -->|Yes| SQL["Relational SQL (Postgres) — Safe Default"]
-  Q2 -->|No| Q3{"Simple GET/PUT by single key?"}
-  Q3 -->|Yes| KV["Key-Value Store (Redis, DynamoDB)"]
-  Q3 -->|No| Q4{"Massive append write volume & known queries?"}
-  Q4 -->|Yes| WC["Wide-Column (Cassandra, ScyllaDB)"]
-  Q4 -->|No| Q5{"Self-contained documents with evolving schema?"}
-  Q5 -->|Yes| Hybrid["Postgres with JSONB (or MongoDB)"]
-  Q5 -->|No| SQL
+```text
+                     +-----------------------------------+
+                     | What is your data & access shape? |
+                     +-----------------+-----------------+
+                                       |
+                       Deep recursive graph traversals?
+                                       |
+                        +-- YES -------+--------> Graph DB (Neo4j)
+                        |
+                        +-- NO
+                            |
+                    Multi-row ACID & arbitrary JOINs?
+                            |
+                            +-- YES ------------> Relational SQL (Postgres)
+                            |                     *The Boring Safe Default*
+                            +-- NO
+                                |
+                        Fast GET/PUT by single key?
+                                |
+                                +-- YES --------> Key-Value (Redis, DynamoDB)
+                                |
+                                +-- NO
+                                    |
+                            Massive append write firehose?
+                                    |
+                                    +-- YES ----> Wide-Column (Cassandra)
+                                    |
+                                    +-- NO -----> Postgres + JSONB (Hybrid)
 ```
 
 ### The 4 Production Failure Modes Every Senior Knows
@@ -301,7 +371,7 @@ flowchart TD
 
 ---
 
-## 8. Summary: How to Sound Senior
+## 9. Summary: How to Sound Senior
 
 If you take only three takeaways from this guide into your next architecture meeting:
 
