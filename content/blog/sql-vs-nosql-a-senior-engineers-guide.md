@@ -13,19 +13,17 @@ Yet, conversations around **SQL vs NoSQL** are too often treated like a religiou
 That framing is fundamentally broken.
 
 ```mermaid
-mindmap
-  root((Databases))
-    Relational SQL
-      Tables rows columns
-      Normalized schema
-      Joins on demand
-      ACID transactions
-      Postgres & MySQL
-    NoSQL Families
-      Document: MongoDB
-      Key-Value: Redis DynamoDB
-      Wide-Column: Cassandra
-      Graph: Neo4j
+flowchart TD
+  DB["Databases"] --> Rel["Relational (SQL)"]
+  DB --> NoSQL["NoSQL Families"]
+  Rel --> R1["Tables, rows, columns"]
+  Rel --> R2["Normalized schema & JOINs"]
+  Rel --> R3["ACID transactions"]
+  Rel --> R4["Postgres & MySQL"]
+  NoSQL --> N1["Document: MongoDB"]
+  NoSQL --> N2["Key-Value: Redis, DynamoDB"]
+  NoSQL --> N3["Wide-Column: Cassandra"]
+  NoSQL --> N4["Graph: Neo4j"]
 ```
 
 As a senior software engineer, you don't pick a database because it's trendy. You pick a database based on four concrete axes:
@@ -54,8 +52,8 @@ flowchart LR
     O -->|"JOIN"| I["items table"]
   end
   subgraph Document["Document (Labelled Boxes)"]
-    B1["User 1 Box<br/>{profile, orders:[...]}"]
-    B2["User 2 Box<br/>{profile, orders:[...]}"]
+    B1["User 1 Box: profile, orders"]
+    B2["User 2 Box: profile, orders"]
   end
 ```
 
@@ -68,30 +66,17 @@ Neither is universally "better." If your workload mostly loads a single aggregat
 Martin Kleppmann points out that data models are the single most influential decision in software: **they shape not just how we store bytes, but how we are allowed to think about the problem.**
 
 ```mermaid
-mindmap
-  root((Data Models))
-    Relational
-      Normalized tables
-      Arbitrary JOINs
-      Declarative SQL
-      Great for M:N
-    Document
-      Nested JSON trees
-      Locality: 1 read
-      Schema-on-read
-      Great for 1:N
-    Key-Value
-      Distributed hash map
-      Fast GET/PUT by key
-      Opaque values
-    Wide-Column
-      Partition key + cluster
-      Query-first modeling
-      Massive write scale
-    Graph
-      Nodes and edges
-      First-class traversals
-      Cypher / SPARQL
+flowchart TD
+  DM["Data Models"] --> Rel["Relational"]
+  DM --> Doc["Document"]
+  DM --> KV["Key-Value"]
+  DM --> WC["Wide-Column"]
+  DM --> Gr["Graph"]
+  Rel --> R1["Normalized tables & SQL JOINs"]
+  Doc --> D1["Self-contained JSON trees (1:N)"]
+  KV --> K1["Distributed hash map (Opaque blobs)"]
+  WC --> W1["Partition key + clustering (Query-first)"]
+  Gr --> G1["First-class nodes & edges (Traversal)"]
 ```
 
 ### A. The Relational Model (SQL)
@@ -126,18 +111,18 @@ At the lowest level, all databases grapple with one fundamental physics problem:
 
 ```mermaid
 flowchart TD
-  subgraph BTree["Page-Oriented: B-Tree (Postgres, MySQL, Oracle)"]
+  subgraph BTree["Page-Oriented: B-Tree (Postgres, MySQL)"]
     BP["Fixed-size 4KB Pages on Disk"]
     BW["WAL (Write-Ahead Log)"]
     BP -->|Update in place| BP
-    BW -->|Durability on crash| BP
+    BW -->|Crash recovery| BP
   end
-  subgraph LSM["Log-Structured: LSM-Tree (Cassandra, RocksDB, ScyllaDB)"]
+  subgraph LSM["Log-Structured: LSM-Tree (Cassandra, RocksDB)"]
     MT["In-Memory Memtable (Sorted)"]
-    SST["Immutable SSTables on Disk (Sorted)"]
-    BF["Bloom Filter"]
+    SST["Immutable SSTables on Disk"]
+    BF["Bloom Filters"]
     MT -->|Flush| SST
-    SST -->|Background Compaction| SST
+    SST -->|Compaction| SST
   end
 ```
 
@@ -192,9 +177,9 @@ The classic CAP theorem says that when a **Network Partition ($P$)** occurs, you
 
 ```mermaid
 flowchart TD
-  P{"Network Partition ($P$)?"}
-  P -->|Yes| PC["Choose Consistency ($C$) or Availability ($A$)<br/>(e.g., Refuse writes vs Serve stale)"]
-  P -->|No / Normal| EL["Else ($E$): Choose Latency ($L$) or Consistency ($C$)<br/>(e.g., Wait for all replicas vs Reply fast)"]
+  P{"Network Partition (P)?"}
+  P -->|Yes| PC["Choose Consistency (C) or Availability (A)"]
+  P -->|No / Normal| EL["Else (E): Choose Latency (L) or Consistency (C)"]
 ```
 
 Daniel Abadi formulated the **PACELC** theorem to capture what happens the other 99.9% of the time when the network is completely healthy:
@@ -248,8 +233,8 @@ Today, the landscape has radically converged:
 ```mermaid
 flowchart LR
   subgraph Converged["PostgreSQL Hybrid Model"]
-    C1["Structured Columns<br/>id, user_id, created_at<br/>(ACID, FKs, Indexes)"]
-    C2["JSONB Document Column<br/>payload, metadata, dynamic_attributes<br/>(Schema-on-read)"]
+    C1["Structured Columns: id, user_id, created_at"]
+    C2["JSONB Document Column: payload, metadata"]
   end
   Converged --> GIN["GIN Index: Index inside JSON attributes"]
 ```
@@ -286,16 +271,16 @@ When asked *"SQL or NoSQL?"* in an architectural review or system design intervi
 
 ```mermaid
 flowchart TD
-  Start["Analyze Data Shape & Access Patterns"] --> Q1{"Highly connected data & recursive traversals?<br/>(Social networks, fraud rings)"}
-  Q1 -->|Yes| Graph["Graph Database<br/>(Neo4j, Neptune)"]
-  Q1 -->|No| Q2{"Multi-row ACID transactions critical?<br/>Complex joins & ad-hoc reports?<br/>(Billing, E-commerce, core SaaS)"}
-  Q2 -->|Yes| SQL["Relational SQL (Postgres / MySQL)<br/>— The Safe Default"]
-  Q2 -->|No| Q3{"Simple GET / PUT by single key?<br/>(Caches, user sessions, rate limits)"}
-  Q3 -->|Yes| KV["Key-Value Store<br/>(Redis, DynamoDB)"]
-  Q3 -->|No| Q4{"Massive append write volume?<br/>Known query access pattern?<br/>(Event streams, IoT metrics)"}
-  Q4 -->|Yes| WC["Wide-Column Store<br/>(Cassandra, ScyllaDB)"]
-  Q4 -->|No| Q5{"Self-contained tree documents?<br/>Heterogeneous, evolving attributes?"}
-  Q5 -->|Yes| Hybrid["Postgres with JSONB<br/>(or MongoDB if sharding is Day 1)"]
+  Start["Analyze Data Shape & Access Patterns"] --> Q1{"Connected data & recursive graph traversals?"}
+  Q1 -->|Yes| Graph["Graph Database (Neo4j, Neptune)"]
+  Q1 -->|No| Q2{"Multi-row ACID & complex joins needed?"}
+  Q2 -->|Yes| SQL["Relational SQL (Postgres) — Safe Default"]
+  Q2 -->|No| Q3{"Simple GET/PUT by single key?"}
+  Q3 -->|Yes| KV["Key-Value Store (Redis, DynamoDB)"]
+  Q3 -->|No| Q4{"Massive append write volume & known queries?"}
+  Q4 -->|Yes| WC["Wide-Column (Cassandra, ScyllaDB)"]
+  Q4 -->|No| Q5{"Self-contained documents with evolving schema?"}
+  Q5 -->|Yes| Hybrid["Postgres with JSONB (or MongoDB)"]
   Q5 -->|No| SQL
 ```
 

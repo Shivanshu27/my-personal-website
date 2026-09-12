@@ -2,6 +2,8 @@ baseURL = "https://shivanshu27.github.io/my-personal-website/" # Ensure trailing
 languageCode = "en-us"
 title = "Shivanshu Singla"
 theme = "portfolio"
+buildFuture = true
+
 
 [params]
   author = "Shivanshu Singla"
