@@ -74,14 +74,14 @@ When architecting a data layer, senior engineers avoid tool names until they eva
 ### Axis 1: The Shape of Your Data
 Martin Kleppmann points out that data models are the single most influential decision in software: **they shape not just how we store bytes, but how we are allowed to think about the problem.**
 
-- **Relational ($M:N$ and $N:1$)**: Real-world business data rarely lives in isolation. An order links to a user, a payment method, multiple shipping addresses, and inventory SKUs. Normalizing this data ("store each fact once, reference it everywhere") prevents update anomalies. When an address or product name changes, you update one row.
-- **Hierarchical Trees ($1:N$)**: If an entity is self-contained and rarely accessed outside its parent (e.g., an author's resume and job history, or a chat message with user reactions), a document tree fits naturally.
+- **Relational (Many-to-Many & Many-to-One)**: Real-world business data rarely lives in isolation. An order links to a user, a payment method, multiple shipping addresses, and inventory SKUs. Normalizing this data ("store each fact once, reference it everywhere") prevents update anomalies. When an address or product name changes, you update one row.
+- **Hierarchical Trees (One-to-Many)**: If an entity is self-contained and rarely accessed outside its parent (e.g., an author's resume and job history, or a chat message with user reactions), a document tree fits naturally.
 - **Key-Value**: Opaque values addressed by a single unique ID. The database does not know or care what is inside the payload.
-- **Graph ($M:N$ with deep traversals)**: When the *relationships themselves* are the data (social follower networks, fraud rings, dependency trees). Walking edges in a graph engine is orders of magnitude faster than writing 8-level recursive SQL Common Table Expressions (`WITH RECURSIVE`).
+- **Graph (Many-to-Many with deep traversals)**: When the *relationships themselves* are the data (social follower networks, fraud rings, dependency trees). Walking edges in a graph engine is orders of magnitude faster than writing 8-level recursive SQL Common Table Expressions (`WITH RECURSIVE`).
 
 ### Axis 2: Read vs Write Access Patterns
 A database that excels at read-heavy workloads can crumble under an append-only write firehose:
-- **Read-to-Write Ratio**: A content website might have a $100:1$ read-to-write ratio; an IoT sensor ingestion pipeline has a $1:100$ write-to-read ratio.
+- **Read-to-Write Ratio**: A content website might have a 100:1 read-to-write ratio; an IoT sensor ingestion pipeline has a 1:100 write-to-read ratio.
 - **Query Granularity**: Do you fetch a single record by primary key (`WHERE id = ?`), a contiguous slice of time (`WHERE created_at BETWEEN ? AND ?`), or aggregated summaries across millions of records (`GROUP BY`)?
 - **Join Cardinality**: Are you stitching 5 tables together on every request, or loading a single pre-aggregated document blob in one disk seek?
 
@@ -194,10 +194,10 @@ The consistency guarantees of a database dictate how your application handles co
 ### The Truth About ACID (DDIA Chapter 7)
 Most developers repeat the acronym without inspecting what it actually guarantees:
 
-- **A (Atomicity) $\rightarrow$ Really "Abortability"**: It does not mean thread safety (that's Isolation). It means if an operation fails midway (network drop, constraint violation, power loss), the database discards all partial writes cleanly. You get **safe retries**.
-- **C (Consistency) $\rightarrow$ The Application's Invariant**: As Joe Hellerstein noted, this was tossed in to make the acronym work. The DB enforces foreign keys, but business logic (e.g., *"Account balance cannot drop below zero"*) is the application's responsibility.
-- **I (Isolation) $\rightarrow$ Concurrency Safety**: When transactions execute concurrently, the outcome should match a world where they ran one after another. In practice, full **Serializable** isolation is expensive, so databases offer weaker isolation levels like **Read Committed** and **Snapshot Isolation (MVCC)**.
-- **D (Durability) $\rightarrow$ Crash Survival**: Once committed, the write is written to disk or synced across a quorum.
+- **A (Atomicity) — Really "Abortability"**: It does not mean thread safety (that's Isolation). It means if an operation fails midway (network drop, constraint violation, power loss), the database discards all partial writes cleanly. You get **safe retries**.
+- **C (Consistency) — The Application's Invariant**: As Joe Hellerstein noted, this was tossed in to make the acronym work. The DB enforces foreign keys, but business logic (e.g., *"Account balance cannot drop below zero"*) is the application's responsibility.
+- **I (Isolation) — Concurrency Safety**: When transactions execute concurrently, the outcome should match a world where they ran one after another. In practice, full **Serializable** isolation is expensive, so databases offer weaker isolation levels like **Read Committed** and **Snapshot Isolation (MVCC)**.
+- **D (Durability) — Crash Survival**: Once committed, the write is written to disk or synced across a quorum.
 
 ### BASE & Eventual Consistency
 Distributed NoSQL stores often adopt the **BASE** philosophy:
@@ -206,7 +206,7 @@ Distributed NoSQL stores often adopt the **BASE** philosophy:
 - **Eventual consistency**: If writes stop, all replicas eventually converge.
 
 ### The PACELC Upgrade to CAP
-The classic CAP theorem says that when a **Network Partition ($P$)** occurs, you must choose between **Consistency ($C$)** and **Availability ($A$)**.
+The classic CAP theorem says that when a **Network Partition (P)** occurs, you must choose between **Consistency (C)** and **Availability (A)**.
 
 ```text
                        +-----------------------------+
@@ -226,10 +226,12 @@ The classic CAP theorem says that when a **Network Partition ($P$)** occurs, you
 
 Daniel Abadi formulated the **PACELC** theorem to capture what happens the other 99.9% of the time when the network is completely healthy:
 
-$$\text{If } \mathbf{P} \text{ (Partition) } \rightarrow \mathbf{A} \text{ or } \mathbf{C}; \quad \text{Else } (\mathbf{E}) \rightarrow \mathbf{L} \text{ (Latency) or } \mathbf{C} \text{ (Consistency)}$$
+> **The PACELC Formula**:  
+> **If Partition (P)** &rarr; Trade **Availability (A)** vs **Consistency (C)**;  
+> **Else (E)** &rarr; Trade **Latency (L)** vs **Consistency (C)**.
 
 - **Postgres / MySQL** are **PC/EC**: They choose consistency under partition, and during normal operation, they choose consistency (paying the latency to ensure transactions are durable and consistent).
-- **Cassandra / DynamoDB** are **PA/EL**: Under partition, they remain available. In normal operation, they prioritize low latency ($L$) over strict consistency ($C$), syncing replicas asynchronously.
+- **Cassandra / DynamoDB** are **PA/EL**: Under partition, they remain available. In normal operation, they prioritize low latency (L) over strict consistency (C), syncing replicas asynchronously.
 
 ---
 
@@ -356,7 +358,7 @@ When asked *"SQL or NoSQL?"* in an architectural review or system design intervi
 
 ### The 4 Production Failure Modes Every Senior Knows
 
-1. **The $N+1$ Query Problem (SQL)**:  
+1. **The N+1 Query Problem (SQL)**:  
    *Symptom*: A list endpoint gets 100x slower under load. DB logs show hundreds of sequential round-trips.  
    *Fix*: Collapse queries with `JOIN FETCH`, explicit batching (`WHERE id IN (...)`), or proper ORM eager loading.
 2. **Connection Pool Exhaustion (SQL)**:  
