@@ -82,4 +82,34 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // Dynamic Mermaid diagrams support
+  const mermaidElements = document.querySelectorAll('.mermaid, code.language-mermaid');
+  if (mermaidElements.length > 0) {
+    mermaidElements.forEach(el => {
+      if (el.tagName.toLowerCase() === 'code') {
+        const pre = el.parentElement;
+        if (pre && pre.tagName.toLowerCase() === 'pre') {
+          pre.classList.add('mermaid');
+          pre.textContent = el.textContent;
+        }
+      }
+    });
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js';
+    script.onload = () => {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'loose',
+        themeVariables: {
+          fontFamily: 'Inter, sans-serif'
+        }
+      });
+      mermaid.run({
+        querySelector: '.mermaid'
+      });
+    };
+    document.head.appendChild(script);
+  }
 });
