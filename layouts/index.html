@@ -1,0 +1,166 @@
+{{ define "main" }}
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <p class="hero-greeting"><span class="mono">&gt;</span> Hello, I'm</p>
+      <h1 class="hero-name">{{ .Site.Params.author }}</h1>
+      <h2 class="hero-title">{{ .Site.Params.tagline | default "Senior Engineer &amp; Full Stack Developer" }}</h2>
+      <p class="hero-desc">{{ .Site.Params.description }}</p>
+      <div class="hero-cta">
+        <a href="{{ "projects/" | relURL }}" class="btn btn-primary">
+          <i class="fas fa-code"></i> View Projects
+        </a>
+        <a href="{{ "contact/" | relURL }}" class="btn btn-outline-light">
+          <i class="fas fa-paper-plane"></i> Get In Touch
+        </a>
+      </div>
+      <div class="hero-social">
+        {{ with .Site.Params.github }}
+        <a href="{{ . }}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+        {{ end }}
+        {{ with .Site.Params.linkedin }}
+        <a href="{{ . }}" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>
+        {{ end }}
+        {{ with .Site.Params.email }}
+        <a href="mailto:{{ . }}"><i class="fas fa-envelope"></i></a>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section skills-section" id="skills">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="mono">//</span> Technical Skills</h2>
+      <p class="section-subtitle">Technologies and tools I work with</p>
+    </div>
+
+    <div class="skills-grid">
+      <div class="skill-card" data-animate>
+        <div class="skill-icon"><i class="fas fa-laptop-code"></i></div>
+        <h3>Languages &amp; Frameworks</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">TypeScript</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">FastAPI</span>
+          <span class="skill-tag">Flask</span>
+          <span class="skill-tag">Ray Serve</span>
+          <span class="skill-tag">PyTorch</span>
+          <span class="skill-tag">scikit-learn</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">Remix v2</span>
+          <span class="skill-tag">React 18</span>
+          <span class="skill-tag">Next.js</span>
+          <span class="skill-tag">Express.js</span>
+          <span class="skill-tag">Nest.js</span>
+          <span class="skill-tag">Vite</span>
+          <span class="skill-tag">SQL</span>
+          <span class="skill-tag">GraphQL</span>
+          <span class="skill-tag">Solidity</span>
+        </div>
+      </div>
+
+      <div class="skill-card" data-animate>
+        <div class="skill-icon"><i class="fas fa-database"></i></div>
+        <h3>Databases, Storage &amp; Tools</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">PostgreSQL (JSONB)</span>
+          <span class="skill-tag">MongoDB</span>
+          <span class="skill-tag">Redis</span>
+          <span class="skill-tag">AWS S3</span>
+          <span class="skill-tag">Drizzle ORM</span>
+          <span class="skill-tag">@react-pdf/renderer</span>
+          <span class="skill-tag">Turbo monorepo</span>
+          <span class="skill-tag">Vitest</span>
+          <span class="skill-tag">OpenCV</span>
+          <span class="skill-tag">DecisionRules</span>
+          <span class="skill-tag">Mantine UI</span>
+          <span class="skill-tag">Lovable UI</span>
+          <span class="skill-tag">Git</span>
+          <span class="skill-tag">Swagger</span>
+          <span class="skill-tag">Figma</span>
+        </div>
+      </div>
+
+      <div class="skill-card" data-animate>
+        <div class="skill-icon"><i class="fas fa-cloud"></i></div>
+        <h3>Cloud &amp; DevOps</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">AWS ECS Fargate</span>
+          <span class="skill-tag">AWS Lambda</span>
+          <span class="skill-tag">Step Functions</span>
+          <span class="skill-tag">SAM / CloudFormation</span>
+          <span class="skill-tag">SNS / SQS</span>
+          <span class="skill-tag">EventBridge</span>
+          <span class="skill-tag">CloudFront</span>
+          <span class="skill-tag">Route53</span>
+          <span class="skill-tag">WAFv2</span>
+          <span class="skill-tag">IAM</span>
+          <span class="skill-tag">GCP Cloud Run</span>
+          <span class="skill-tag">Cloud KMS</span>
+          <span class="skill-tag">Secret Manager</span>
+          <span class="skill-tag">Harness CI/CD</span>
+          <span class="skill-tag">GitHub Actions OIDC</span>
+          <span class="skill-tag">Terraform</span>
+          <span class="skill-tag">Docker (distroless)</span>
+          <span class="skill-tag">Azure</span>
+        </div>
+      </div>
+
+      <div class="skill-card" data-animate>
+        <div class="skill-icon"><i class="fas fa-brain"></i></div>
+        <h3>AI, ML &amp; Architecture</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">RAG</span>
+          <span class="skill-tag">Multi-agent AI</span>
+          <span class="skill-tag">LangFlow</span>
+          <span class="skill-tag">OpenAI API</span>
+          <span class="skill-tag">PyTorch</span>
+          <span class="skill-tag">scikit-learn</span>
+          <span class="skill-tag">Pandas</span>
+          <span class="skill-tag">NumPy</span>
+          <span class="skill-tag">Microservices</span>
+          <span class="skill-tag">Event-driven</span>
+          <span class="skill-tag">Serverless</span>
+          <span class="skill-tag">KMS Envelope Encryption</span>
+          <span class="skill-tag">Cross-account IAM</span>
+          <span class="skill-tag">Zero-downtime Deploys</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section recent-posts-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="mono">//</span> Latest Posts</h2>
+      <p class="section-subtitle">Thoughts on software engineering and technology</p>
+    </div>
+
+    <div class="post-grid">
+      {{ range first 3 (where .Site.RegularPages "Section" "blog").ByDate.Reverse }}
+      <article class="post-card" data-animate>
+        <div class="post-card-meta">
+          <time>{{ .Date.Format "Jan 2, 2006" }}</time>
+          {{ with .Params.tags }}
+          <div class="post-card-tags">
+            {{ range first 2 . }}<span>{{ . }}</span>{{ end }}
+          </div>
+          {{ end }}
+        </div>
+        <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+        <p>{{ .Summary | truncate 120 }}</p>
+        <a href="{{ .Permalink }}" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+      </article>
+      {{ end }}
+    </div>
+
+    <div class="section-cta">
+      <a href="{{ "blog/" | relURL }}" class="btn btn-outline">View All Posts</a>
+    </div>
+  </div>
+</section>
+{{ end }}
