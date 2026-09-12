@@ -6,7 +6,7 @@ draft: false
 
 ## Professional Background
 
-I am a Software Engineer at **Tractable** (Noida), building AI-driven, cloud-native systems across AWS, GCP, and Azure. With 5+ years of experience and a B.Tech. from IIT Kanpur, I architect full-stack and ML platforms that translate into measurable revenue — currently driving **$140M+ in client opportunities** at Tractable through greenfield product features, secure infrastructure-as-code, and zero-downtime cloud migrations.
+I am a Senior Software Engineer at **Tractable** (Noida), building AI-driven, cloud-native systems across AWS, GCP, and Azure. With 5+ years of experience and a B.Tech. from IIT Kanpur, I architect full-stack and ML platforms that translate into measurable revenue — currently driving **$140M+ in client opportunities** at Tractable through greenfield product features, secure infrastructure-as-code, and zero-downtime cloud migrations.
 
 Previously, I was a Senior Engineer at Evalueserve where I architected Generative AI products (RAG, multi-agent systems) and won 1st place at the Microsoft Azure Hackathon 2024. Earlier, I built real-money gaming backends at SPC Games and enterprise DevOps dashboards at GIIT Solutions.
 
@@ -25,37 +25,42 @@ Previously, I was a Senior Engineer at Evalueserve where I architected Generativ
 - **Other**: SQL, GraphQL, Solidity, HTML/CSS
 
 ### Architecture & Patterns
-Microservices, REST APIs, Event-driven systems, Serverless, KMS envelope encryption (DEK/KEK, AES-GCM), Cross-account IAM, Zero-downtime deployments, Multi-environment CI/CD, RAG & Multi-agent AI
+Distributed Systems, Microservices, Event-driven architecture, High Availability (HA), REST APIs, Serverless, KMS envelope encryption (DEK/KEK, AES-GCM), Cross-account IAM, Zero-downtime deployments, Multi-environment CI/CD, RAG & Multi-agent AI
 
 ### Databases & Storage
 PostgreSQL (JSONB), MongoDB, Redis, AWS S3
 
 ### Tools & Testing
-Drizzle ORM, @react-pdf/renderer, Turbo monorepo, Vitest, OpenCV, DecisionRules SaaS, Mantine UI, Lovable UI, Git, Bitbucket, Postman, Swagger, Figma
+Vitest (Unit/Integration Testing), Drizzle ORM, @react-pdf/renderer, Turbo monorepo, DecisionRules SaaS, OpenCV, CloudWatch Alarms, Mantine UI, Lovable UI, Git, Bitbucket, Postman, Swagger, Figma
 
 ## Work Experience
 
-### Software Engineer
+### Senior Software Engineer
 **Tractable, Noida** | May 2025 – Present
 
 *Domain: AI-driven Insurance Tech — Auto & Property*
 
+- **GEICO Subro Migration – APP Review Pipeline** ($3M+ deal, APP's largest client)
+  - Migrated GEICO Subrogation review product off legacy KTLO stack onto modern Auto Platform across 5 repositories and 20+ tickets.
+  - Purpose-built an automated Python parity engine evaluating claim-by-claim leakage flags across 533 production claims; resolved asynchronous snapshot-staleness and boosted cross-stack agreement from **78% → 88%** with zero regression across 5 other insurer tenants.
+  - Architected greenfield **Contention Report** with optimistic UI state orchestration, server-side dynamic PDF generation via @react-pdf/renderer, 1,300+ automated tests, and schema-less JSONB persistence with **zero DB migrations**; expanded with a dedicated Rental/Tow/Storage contention calculator.
+  - Re-authored 37 legacy in-process rules 1:1 into **DecisionRules SaaS** under the `GEICO_SUBRO_CAND` V3 profile, unblocking CCC refinish estimates where 1,062 parts were inconclusive.
+  - Delivered APP's first external parts-pricing capability (**PartsTrader**), root-causing pricing discrepancies and recovering ~$26K in unpriced parts.
+  - Designed APP's first **AWS Step Functions** ingestion state machine (PDF extraction → ML classification → case creation) with cross-account S3 fan-out, lifting ingestion success from **21% → 98% (+77 pp)**.
 - **RAIS On-Premise Vehicle Interchange Service** ($120M+ revenue opportunity)
   - Architected and deployed a containerized vehicle interchange service on client's GCP Cloud Run with end-to-end Harness CI/CD pipeline automating build, security scanning, regression, and multi-environment promotion across Tractable dev, client staging, and prod (100% deploy success).
   - Engineered multi-layer security with KMS envelope encryption (DEK + KEK, AES-GCM), service account impersonation, and obfuscation layers protecting 3 global VIN decoder API keys; built distroless Docker images reducing attack surface by 60%.
   - Authored Terraform IaC across 3 GCP projects (Registry, Service Accounts, IAM) and 4 log-based metrics + Cloud Monitoring dashboards tracking 100% VIN API usage, reducing manual deploy steps by 95%.
 - **ATIC Client Onboarding – APP Review Flow** ($5M+ new client engagement)
   - Onboarded ATIC as Tractable's first-ever APP Review Flow client with zero knowledge-transfer; raised ingestion success rate from **21% → 98% (+77 pp)** across 100+ production claims via version-aware artefact filtering, presigned-URL refresh, and TR_081/TR_082 failure-mode handling.
-  - Architected greenfield **Contention Report** full-stack feature (10 React components, 6,000+ LOC, 1,300+ unit/integration tests) with server-side PDF generation via @react-pdf/renderer and **zero DB migrations** — extending JSONB `estimate.details` with 4 new Remix action types, enabling reviewers to capture AI-flagged change requests across 6 decision types with live financial-impact totals.
-  - Designed APP's first **AWS Step Functions** ingestion state machine orchestrating PDF extraction (pdftoppm/OpenCV) → EventBridge ML classification → junk filtering → case creation.
   - Engineered cross-account S3 architecture (STS AssumeRole + org-wide bucket policy) with SNS → SQS → Lambda fan-out for bulk parallel ingestion, eliminating ~15 hrs/week of manual claim creation.
   - Built Failed Claims display surfacing 18+ previously blocked cases (0% → 100% visibility), and configured 41 ATIC-specific DecisionRules generating 20+ structured leakage decisions per case across labour, replace, refinish, blend, visibility, and estimate-line validations.
 - **Property Automation & Estimation Services** ($8M+ product migration value)
   - Led Kubernetes → AWS ECS Fargate migration of 3 production ML services for NTT client acquisition: **Property Typhoon** (OpenCLIP ViT-L-14-336 + Ray Serve, 934 MB model), **Property Automation** (FastAPI + 70+ scikit-learn models for roof material/damage), and **Image Anonymization** (serverless PyTorch Lambda); zero-downtime via SAM IaC with auto-scaling, Service Discovery, and dual-AZ private VPC.
   - Built multi-environment GitHub Actions CI/CD with OIDC auth, cross-account role assumption (3 AWS accounts), ECR git-sha tagging, and circuit-breaker rollbacks; engineered React 18 + Vite Cognito admin SPA fronted by CloudFront + Route53 + ACM + WAFv2 IP-whitelist, with Terraform IaC reducing manual deploy steps 95%.
   - Eliminated Nexus by migrating 5+ private Python packages to GitHub SSH deploy keys (ED25519, Docker BuildKit SSH mounts), shifting from broad PATs to narrow per-repo keys; optimized Lambda Layer from 280 MB → 148 MB (47%) and cut deployment time 15%.
-- **SCA Claims Audit Automation Platform** ($12M+ annual leakage reduction)
-  - Architected end-to-end claims audit system combining rule-based NA Review pipeline with LLM-powered freestyle analysis across 5 modular pipeline stages (PDF → MPOC → S3 → Marcel API), cutting manual audit time **90%** (15+ hrs → 1 hr) with 92% leakage-detection accuracy across 25+ claims and an interactive Lovable UI dashboard for stakeholder drill-down.
+- **SCA Claims Audit Automation Platform** ($1M annual leakage reduction)
+  - Architected end-to-end claims audit system combining rule-based review with LLM-powered freestyle analysis across 5 modular pipeline stages (PDF → MPOC → S3 → Marcel API), cutting manual audit time **90%** (15+ hrs → 1 hr) with **92% leakage-detection accuracy** across 25+ claims and an interactive Lovable UI dashboard for stakeholder drill-down.
 
 ### Senior Engineer
 **Evalueserve SEZ Pvt. Ltd., Gurugram** | Dec 2023 – May 2025

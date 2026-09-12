@@ -11,6 +11,15 @@ A collection of professional and personal projects that demonstrate my technical
 ## Tractable — Cloud, AI/ML & Full-Stack
 
 {{< project-card 
+    title="GEICO Subro Migration — APP Review Pipeline ($3M+ deal, APP's largest client)" 
+    description="Migrated GEICO's Subrogation claim-review platform off legacy KTLO stack onto modern Auto Platform across 5 repos."
+    bullets="Migrated APP's largest client across 5 repositories and 20+ tickets with zero downtime. | Built a 3,953-LOC <strong>Python parity engine</strong> comparing claim-by-claim leakage flags across 533 production claims, resolving asynchronous snapshot-staleness and lifting cross-stack agreement from <strong>78% → 88%</strong> with zero regression across 5 other insurer tenants. | Architected greenfield <strong>Contention Report</strong> with optimistic UI state orchestration, server-side dynamic PDF generation (@react-pdf/renderer), 1,300+ automated tests, and schema-less JSONB persistence with <strong>zero DB migrations</strong>; expanded with a dedicated Rental/Tow/Storage contention calculator. | Re-authored 37 legacy in-process rules 1:1 into <strong>DecisionRules SaaS</strong> under the GEICO_SUBRO_CAND V3 profile, unblocking CCC refinish estimates where 1,062 parts were inconclusive. | Delivered APP's first external parts-pricing capability (<strong>PartsTrader</strong>), root-causing pricing discrepancies and recovering ~$26K in unpriced parts. | Designed APP's first <strong>AWS Step Functions</strong> ingestion state machine (PDF extraction → ML classification → case creation) with cross-account S3 fan-out, lifting ingestion success from <strong>21% → 98% (+77 pp)</strong>."
+    tags="TypeScript, React 18, Remix v2, Node.js, Python, PostgreSQL (JSONB), Drizzle ORM, AWS Step Functions, Lambda, S3, SNS/SQS, EventBridge, STS, DecisionRules SaaS, PartsTrader, Vitest"
+    github=""
+    demo=""
+>}}
+
+{{< project-card 
     title="RAIS On-Premise Vehicle Interchange Service ($120M+ revenue opportunity)" 
     description="Containerized vehicle interchange service deployed on client's GCP Cloud Run with end-to-end Harness CI/CD and multi-layer security."
     bullets="Architected and deployed the service across Tractable dev, client staging, and prod with end-to-end Harness CI/CD pipeline automating build, security scanning, regression, and multi-environment promotion (100% deploy success). | Engineered multi-layer security with <strong>KMS envelope encryption (DEK + KEK, AES-GCM)</strong>, service account impersonation, and obfuscation layers protecting 3 global VIN decoder API keys; built distroless Docker images reducing attack surface by 60%. | Authored Terraform IaC across 3 GCP projects (Registry, Service Accounts, IAM) and 4 log-based metrics + Cloud Monitoring dashboards tracking 100% VIN API usage, reducing manual deploy steps by 95%."
@@ -22,7 +31,7 @@ A collection of professional and personal projects that demonstrate my technical
 {{< project-card 
     title="ATIC Client Onboarding — APP Review Flow ($5M+ new client engagement)" 
     description="Onboarded ATIC as Tractable's first-ever APP Review Flow client with zero knowledge-transfer."
-    bullets="Raised ingestion success rate from <strong>21% → 98% (+77 pp)</strong> across 100+ production claims via version-aware artefact filtering, presigned-URL refresh, and TR_081/TR_082 failure-mode handling. | Architected greenfield <strong>Contention Report</strong> full-stack feature — 10 React components, 6,000+ LOC, 1,300+ unit/integration tests, server-side PDF generation via @react-pdf/renderer, and <strong>zero DB migrations</strong>. | Designed APP's first <strong>AWS Step Functions</strong> ingestion state machine: PDF extraction (pdftoppm/OpenCV) → EventBridge ML classification → junk filtering → case creation. | Engineered cross-account S3 architecture (STS AssumeRole + org-wide bucket policy) with SNS → SQS → Lambda fan-out for bulk parallel ingestion, eliminating ~15 hrs/week of manual claim creation. | Built Failed Claims display surfacing 18+ previously blocked cases (0% → 100% visibility), and configured 41 ATIC-specific DecisionRules generating 20+ structured leakage decisions per case."
+    bullets="Raised ingestion success rate from <strong>21% → 98% (+77 pp)</strong> across 100+ production claims via version-aware artefact filtering, presigned-URL refresh, and TR_081/TR_082 failure-mode handling. | Engineered cross-account S3 architecture (STS AssumeRole + org-wide bucket policy) with SNS → SQS → Lambda fan-out for bulk parallel ingestion, eliminating ~15 hrs/week of manual claim creation. | Built Failed Claims display surfacing 18+ previously blocked cases (0% → 100% visibility), and configured 41 ATIC-specific DecisionRules generating 20+ structured leakage decisions per case."
     tags="TypeScript, React 18, Remix v2, Node.js, PostgreSQL (JSONB), Drizzle ORM, @react-pdf/renderer, AWS Step Functions, Lambda, S3, SNS/SQS, EventBridge, OpenCV, DecisionRules, Vitest"
     github=""
     demo=""
@@ -38,8 +47,8 @@ A collection of professional and personal projects that demonstrate my technical
 >}}
 
 {{< project-card 
-    title="SCA Claims Audit Automation Platform ($12M+ annual leakage reduction)" 
-    description="End-to-end claims audit system combining rule-based NA Review pipeline with LLM-powered freestyle analysis."
+    title="SCA Claims Audit Automation Platform ($1M annual leakage reduction)" 
+    description="End-to-end claims audit system combining rule-based review with LLM-powered freestyle analysis."
     bullets="5 modular pipeline stages: PDF → MPOC → S3 → Marcel API. | Cut manual audit time <strong>90%</strong> (15+ hrs → 1 hr) with <strong>92% leakage-detection accuracy</strong> across 25+ historical claims. | Interactive Lovable UI dashboard for stakeholder drill-down into AI-flagged leakage across labour, parts, and visibility categories."
     tags="Python, Flask, OpenAI API, AWS S3, Lovable UI, MPOC Platform"
     github=""
