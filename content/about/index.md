@@ -31,7 +31,7 @@ Distributed Systems, Microservices, Event-driven architecture, High Availability
 PostgreSQL (JSONB), MongoDB, Redis, AWS S3
 
 ### Tools & Testing
-Vitest (Unit/Integration Testing), Drizzle ORM, @react-pdf/renderer, Turbo monorepo, DecisionRules SaaS, OpenCV, CloudWatch Alarms, Mantine UI, Lovable UI, Git, Bitbucket, Postman, Swagger, Figma
+Vitest (Unit/Integration Testing), Drizzle ORM, @react-pdf/renderer, Turbo monorepo, DecisionRules SaaS, OpenCV, CloudWatch Alarms, Mantine UI, Lovable UI, Claude Code, Git, Bitbucket, Postman, Swagger, Figma
 
 ## Work Experience
 
@@ -41,12 +41,11 @@ Vitest (Unit/Integration Testing), Drizzle ORM, @react-pdf/renderer, Turbo monor
 *Domain: AI-driven Insurance Tech — Auto & Property*
 
 - **GEICO Subro Migration – APP Review Pipeline** ($3M+ deal, APP's largest client)
-  - Migrated GEICO Subrogation review product off legacy KTLO stack onto modern Auto Platform across 5 repositories and 20+ tickets.
-  - Purpose-built an automated Python parity engine evaluating claim-by-claim leakage flags across 533 production claims; resolved asynchronous snapshot-staleness and boosted cross-stack agreement from **78% → 88%** with zero regression across 5 other insurer tenants.
-  - Architected greenfield **Contention Report** with optimistic UI state orchestration, server-side dynamic PDF generation via @react-pdf/renderer, 1,300+ automated tests, and schema-less JSONB persistence with **zero DB migrations**; expanded with a dedicated Rental/Tow/Storage contention calculator.
-  - Re-authored 37 legacy in-process rules 1:1 into **DecisionRules SaaS** under the `GEICO_SUBRO_CAND` V3 profile, unblocking CCC refinish estimates where 1,062 parts were inconclusive.
-  - Delivered APP's first external parts-pricing capability (**PartsTrader**), root-causing pricing discrepancies and recovering ~$26K in unpriced parts.
-  - Designed APP's first **AWS Step Functions** ingestion state machine (PDF extraction → ML classification → case creation) with cross-account S3 fan-out, lifting ingestion success from **21% → 98% (+77 pp)**.
+  - Migrated **GEICO Subro -- APP's largest client** onto the modern APP Review pipeline from legacy KTLO; engineered an **AWS Step Functions** ingestion state machine with cross-account S3 fan-out, raising ingestion reliability from **21% to 98%**.
+  - Architected greenfield **Contention Report** with **optimistic UI** in React/Remix, server-side document generation via **@react-pdf/renderer**, and **PostgreSQL JSONB** persistence with zero DB migrations; added Rental, Tow, and Storage support.
+  - Migrated the AI decision engine to the `GEICO_SUBRO_CAND` V3 profile and re-authored **37 legacy rules 1:1** into **DecisionRules SaaS**; resolved CCC estimate parsing edge cases where inconclusive part flags blocked automated refinish calculations.
+  - Delivered APP's first **external parts-pricing capability** (PartsTrader via Repair Data Service), diagnosing missing part-price flags across CCC claims to recover **~$26K** of un-priced part value and avert production quoting errors.
+  - Restored 3 dropped client lifecycle callbacks at byte-parity; built a standalone **Python parity engine** published as interactive **Claude artefacts** with a custom skill, lifting cross-stack flag agreement from **72% → 88%** with **zero regressions** to 5 other insurer tenants.
 - **RAIS On-Premise Vehicle Interchange Service** ($120M+ revenue opportunity)
   - Architected and deployed a containerized vehicle interchange service on client's GCP Cloud Run with end-to-end Harness CI/CD pipeline automating build, security scanning, regression, and multi-environment promotion across Tractable dev, client staging, and prod (100% deploy success).
   - Engineered multi-layer security with KMS envelope encryption (DEK + KEK, AES-GCM), service account impersonation, and obfuscation layers protecting 3 global VIN decoder API keys; built distroless Docker images reducing attack surface by 60%.
@@ -56,11 +55,11 @@ Vitest (Unit/Integration Testing), Drizzle ORM, @react-pdf/renderer, Turbo monor
   - Engineered cross-account S3 architecture (STS AssumeRole + org-wide bucket policy) with SNS → SQS → Lambda fan-out for bulk parallel ingestion, eliminating ~15 hrs/week of manual claim creation.
   - Built Failed Claims display surfacing 18+ previously blocked cases (0% → 100% visibility), and configured 41 ATIC-specific DecisionRules generating 20+ structured leakage decisions per case across labour, replace, refinish, blend, visibility, and estimate-line validations.
 - **Property Automation & Estimation Services** ($8M+ product migration value)
-  - Led Kubernetes → AWS ECS Fargate migration of 3 production ML services for NTT client acquisition: **Property Typhoon** (OpenCLIP ViT-L-14-336 + Ray Serve, 934 MB model), **Property Automation** (FastAPI + 70+ scikit-learn models for roof material/damage), and **Image Anonymization** (serverless PyTorch Lambda); zero-downtime via SAM IaC with auto-scaling, Service Discovery, and dual-AZ private VPC.
-  - Built multi-environment GitHub Actions CI/CD with OIDC auth, cross-account role assumption (3 AWS accounts), ECR git-sha tagging, and circuit-breaker rollbacks; engineered React 18 + Vite Cognito admin SPA fronted by CloudFront + Route53 + ACM + WAFv2 IP-whitelist, with Terraform IaC reducing manual deploy steps 95%.
-  - Eliminated Nexus by migrating 5+ private Python packages to GitHub SSH deploy keys (ED25519, Docker BuildKit SSH mounts), shifting from broad PATs to narrow per-repo keys; optimized Lambda Layer from 280 MB → 148 MB (47%) and cut deployment time 15%.
+  - Led **Kubernetes → AWS ECS Fargate** migration of 3 production ML services for NTT handover (**Property Typhoon**, **Property Automation**, **Image Anonymization**) with zero downtime, provisioning dual-AZ private VPC networking and auto-scaling via SAM IaC.
+  - Decoupled package dependencies for NTT transfer by migrating 5+ internal Python libraries from Sonatype Nexus to **private GitHub repositories**, using scoped **SSH deploy keys** and **Docker BuildKit mounts** to prevent credential leaks in image layers.
+  - Optimized serverless **Image Anonymization** (PyTorch face/plate detection) to fit AWS Lambda's **250 MB ceiling** (280 MB → 148 MB); built multi-account **GitHub Actions CI/CD** with OIDC and Cognito admin SPA.
 - **SCA Claims Audit Automation Platform** ($1M annual leakage reduction)
-  - Architected end-to-end claims audit system combining rule-based review with LLM-powered freestyle analysis across 5 modular pipeline stages (PDF → MPOC → S3 → Marcel API), cutting manual audit time **90%** (15+ hrs → 1 hr) with **92% leakage-detection accuracy** across 25+ claims and an interactive Lovable UI dashboard for stakeholder drill-down.
+  - Architected end-to-end claims audit system combining rule-based review with **LLM-assisted claim analysis** across 5 modular pipeline stages (PDF → MPOC → S3 → internal APIs), cutting manual audit time by **90%** (15+ hrs → 1 hr) with **92% leakage-detection accuracy** and an interactive web dashboard for adjusters.
 
 ### Senior Engineer
 **Evalueserve SEZ Pvt. Ltd., Gurugram** | Dec 2023 – May 2025
@@ -105,7 +104,7 @@ Vitest (Unit/Integration Testing), Drizzle ORM, @react-pdf/renderer, Turbo monor
 - 1st place, Microsoft Azure Hackathon, Evalueserve, 2024
 - Project Ranked 2, Material Science Lab, I.I.T. Kanpur
 - Merit-cum-Means Scholarship, I.I.T. Kanpur
-- Top 0.63% in IIT-JEE & top 0.21% in AIEEE 2009; 99.9+ percentile in UPSC
+- Top 0.63% in IIT-JEE & top 0.21% in AIEEE; 99.9+ percentile in UPSC CSAT
 - International exposure — short stint in Dubai working with a 19-nationality team
 
 ## Certifications
