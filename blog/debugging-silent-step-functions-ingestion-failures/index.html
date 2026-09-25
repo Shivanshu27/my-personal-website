@@ -1,0 +1,164 @@
+<!doctype html><html lang=en-us><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>When Green Means Broken: Forensic Debugging of a Silent 77-Point Ingestion Failure in AWS Step Functions | Shivanshu Singla</title><meta name=description content="Senior Software Engineer @ Tractable — building AI-driven, cloud-native systems on AWS, GCP & Azure"><link rel=icon href=/images/favicon.png><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css><link rel=stylesheet href=/my-personal-website/css/main.css><link rel=stylesheet href=/css/custom.css></head><body><header class=site-header><div class=container><div class=header-inner><a href=/my-personal-website/ class=logo><span class=logo-bracket>{</span>
+<span class=logo-text>Shivanshu Singla</span>
+<span class=logo-bracket>}</span></a><nav class=main-nav id=main-nav><ul><li><a href=/my-personal-website/>Home</a></li><li><a href=/my-personal-website/about/>About</a></li><li><a href=/my-personal-website/projects/>Projects</a></li><li><a href=/my-personal-website/blog/>Blog</a></li><li><a href=/my-personal-website/contact/>Contact</a></li></ul></nav><button class=mobile-menu-toggle id=menu-toggle aria-label="Toggle menu">
+<span></span>
+<span></span>
+<span></span></button></div></div></header><main><section class=page-header><div class=container><h1>When Green Means Broken: Forensic Debugging of a Silent 77-Point Ingestion Failure in AWS Step Functions</h1><div class=post-meta><span class=date><i class="far fa-calendar-alt"></i> September 24, 2026</span>
+<span class=tags><i class="fas fa-tags"></i>
+<a href=/tags/aws>aws</a>
+<a href=/tags/step-functions>step-functions</a>
+<a href=/tags/distributed-systems>distributed-systems</a>
+<a href=/tags/debugging>debugging</a>
+<a href=/tags/incident-response>incident-response</a>
+<a href=/tags/reliability>reliability</a>
+<a href=/tags/architecture>architecture</a></span></div></div></section><section class=content-section><div class=container><article class=content><p>There is a category of production outage that keeps every senior systems engineer awake at night.</p><p>It isn’t a catastrophic crash that triggers a cacophony of PagerDuty alerts, nor is it a spike in HTTP 500 errors lighting up your CloudWatch dashboard in bright red.</p><p>It is the <strong>silent outage</strong>—the failure where every service reports healthy, every operational metric is in the green, and yet your business process is losing <strong>79% of all customer data</strong>.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>[ Incoming Production Documents ] ──► 100 Claims Ingested
+</span></span><span style=display:flex><span>                                            │
+</span></span><span style=display:flex><span>                                            ▼
+</span></span><span style=display:flex><span>                           [ AWS Step Functions Pipeline ]
+</span></span><span style=display:flex><span>                                            │
+</span></span><span style=display:flex><span>             ┌──────────────────────────────┴──────────────────────────────┐
+</span></span><span style=display:flex><span>             ▼                                                             ▼
+</span></span><span style=display:flex><span>  CloudWatch Dashboard:                                         Actual Business Outcome:
+</span></span><span style=display:flex><span>   &#34;Executions: 100% SUCCEED&#34;                                    &#34;21 Claims Processed
+</span></span><span style=display:flex><span>    All Metrics Green!                                            79 Claims Disappeared!&#34;
+</span></span></code></pre></div><p>During a major enterprise client onboarding on our automated document appraisal platform, this exact nightmare occurred. Out of every 100 insurance claim files uploaded, only 21 cases ever appeared on the reviewer portal. Yet our orchestration engine, built on <strong>AWS Step Functions</strong>, reported a flawless <strong>100% execution success rate</strong>.</p><p>In this post, we will walk through the forensic investigation of this silent failure: the architectural anti-patterns that hid it, the compound defects across Lambdas and S3 presigned URLs, how we lifted ingestion reliability from <strong>21% to 98% (+77 percentage points)</strong>, and the operational framework for building self-healing distributed state machines.</p><hr><h2 id=1-the-ingestion-pipeline-architecture>1. The Ingestion Pipeline Architecture</h2><p>Our platform ingests high-volume insurance claims consisting of multi-page PDF repair estimates, scanned photos, and structured metadata.</p><p>Processing a single claim requires 4 distinct stages coordinated across distributed services:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>[ Client S3 Bucket ]
+</span></span><span style=display:flex><span>         │
+</span></span><span style=display:flex><span>         │ 1. S3 ObjectCreated Event
+</span></span><span style=display:flex><span>         ▼
+</span></span><span style=display:flex><span>[ Ingestion SQS Queue ]
+</span></span><span style=display:flex><span>         │
+</span></span><span style=display:flex><span>         │ 2. Lambda Trigger
+</span></span><span style=display:flex><span>         ▼
+</span></span><span style=display:flex><span>┌────────────────────────────────────────────────────────┐
+</span></span><span style=display:flex><span>│             AWS Step Functions Orchestration           │
+</span></span><span style=display:flex><span>├────────────────────────────────────────────────────────┤
+</span></span><span style=display:flex><span>│ 1. DownloadAssets (Extract PDF &amp; images via S3)        │
+</span></span><span style=display:flex><span>│ 2. ExtractImagesFromPdf (pdftoppm + OpenCV extraction) │
+</span></span><span style=display:flex><span>│ 3. MLClassification (Classify estimate vs photo)      │
+</span></span><span style=display:flex><span>│ 4. CaseCreation (POST to Reviewer REST API)            │
+</span></span><span style=display:flex><span>└────────────────────────────────────────────────────────┘
+</span></span></code></pre></div><p>Because document extraction and AI assessment can take anywhere from 10 seconds to several minutes, <strong>AWS Step Functions (Standard Workflow)</strong> served as the state machine orchestrator, providing durable task execution, state persistence, and automatic retries.</p><hr><h2 id=2-the-crisis-the-silent-green-anti-pattern>2. The Crisis: The &ldquo;Silent Green&rdquo; Anti-Pattern</h2><p>During pre-production acceptance testing for our newest enterprise client, the operations team escalated an urgent issue:</p><blockquote><p><em>&ldquo;We uploaded a batch of 100 test claim PDFs into the S3 bucket. Our reviewers can only find 21 claims in the platform portal. Where are the other 79 cases?&rdquo;</em></p></blockquote><p>The engineering team&rsquo;s initial response was confusion:</p><ul><li>The CloudWatch metric <code>ExecutionsFailed</code> was <strong>0</strong>.</li><li>The Step Functions execution history showed <strong>100 green executions</strong> ending in the state <code>Succeed</code>.</li><li>There were zero unhandled Lambda exceptions in our error logs.</li></ul><p>To external observers, the pipeline was 100% healthy. In reality, <strong>it was silently dropping 79 out of every 100 production claims.</strong></p><h3 id=forensic-step-1-inspecting-the-raw-execution-graph>Forensic Step 1: Inspecting the Raw Execution Graph</h3><p>Rather than relying on aggregate CloudWatch metrics, I pulled the raw execution JSON history for one of the missing claims:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;executionArn&#34;</span>: <span style=color:#e6db74>&#34;arn:aws:states:us-east-1:123456789012:execution:IngestPipeline:claim_8921&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;status&#34;</span>: <span style=color:#e6db74>&#34;SUCCEEDED&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;events&#34;</span>: [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;type&#34;</span>: <span style=color:#e6db74>&#34;TaskFailed&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;details&#34;</span>: {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;error&#34;</span>: <span style=color:#e6db74>&#34;AssetFetchError&#34;</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;cause&#34;</span>: <span style=color:#e6db74>&#34;HTTP 404: The specified key does not exist.&#34;</span>
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;type&#34;</span>: <span style=color:#e6db74>&#34;ExecutionSucceeded&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;details&#34;</span>: {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;output&#34;</span>: <span style=color:#e6db74>&#34;{&#34;</span><span style=color:#960050;background-color:#1e0010>status</span><span style=color:#e6db74>&#34;: &#34;</span><span style=color:#960050;background-color:#1e0010>FAILED_HANDLED</span><span style=color:#e6db74>&#34;}&#34;</span>
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>]</span>
+</span></span></code></pre></div><p>Looking at the Amazon States Language (ASL) definition revealed the fatal anti-pattern:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;Catch&#34;</span>: [
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;ErrorEquals&#34;</span>: [<span style=color:#e6db74>&#34;States.ALL&#34;</span>],
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;ResultPath&#34;</span>: <span style=color:#e6db74>&#34;$.error&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;Next&#34;</span>: <span style=color:#e6db74>&#34;CleanUpAndExit&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  ],
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;CleanUpAndExit&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Type&#34;</span>: <span style=color:#e6db74>&#34;Succeed&#34;</span>  <span style=color:#75715e>// &lt;-- THE SILENT FAILURE TRAP!
+</span></span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=the-succeed-anti-pattern-explained>The &ldquo;Succeed&rdquo; Anti-Pattern Explained</h3><p>In AWS Step Functions, terminating a workflow in a state of type <code>Succeed</code> tells AWS: <em>&ldquo;This business process completed successfully.&rdquo;</em></p><p>Even though the workflow caught an exception, it routed execution to <code>Succeed</code>. As a result:</p><ol><li>AWS CloudWatch recorded an <strong><code>ExecutionsSucceeded</code></strong> event.</li><li>The <code>ExecutionsFailed</code> metric remained at <strong>zero</strong>.</li><li>PagerDuty alarms remained silent.</li><li>Downstream dead-letter queues received nothing.</li></ol><p><strong>The Golden Lesson:</strong> Catching an exception is not the same as succeeding. If a distributed workflow cannot fulfill its business objective, it must terminate in a <strong><code>Fail</code></strong> state or explicitly route the payload to a monitored Dead-Letter Queue (DLQ).</p><hr><h2 id=3-forensic-step-2-uncovering-the-root-causes>3. Forensic Step 2: Uncovering the Root Causes</h2><p>Once we forced failures to surface, we uncovered three distinct compound defects responsible for the 79% failure rate:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>┌───────────────────────────┬──────────────────────────────────┬─────────────────────────────────┐
+</span></span><span style=display:flex><span>│ Defect                    │ Mechanism                        │ Impact                          │
+</span></span><span style=display:flex><span>├───────────────────────────┼──────────────────────────────────┼─────────────────────────────────┤
+</span></span><span style=display:flex><span>│ 1. Asset URI Corruption   │ Lambda stripped bucket prefix;   │ Caused HTTP 404 that surfaced   │
+</span></span><span style=display:flex><span>│                           │ hardcoded legacy S3 key paths    │ as misleading HTTP 400 error    │
+</span></span><span style=display:flex><span>├───────────────────────────┼──────────────────────────────────┼─────────────────────────────────┤
+</span></span><span style=display:flex><span>│ 2. Presigned URL Expiry   │ S3 presigned PUT URLs had 15-min │ Multi-page batches failed with  │
+</span></span><span style=display:flex><span>│                           │ TTL; processing took &gt; 20 mins   │ HTTP 403 Forbidden mid-flow     │
+</span></span><span style=display:flex><span>├───────────────────────────┼──────────────────────────────────┼─────────────────────────────────┤
+</span></span><span style=display:flex><span>│ 3. Lack of Partial Loaders│ One corrupt image out of 50      │ Complete case dropped; reviewer │
+</span></span><span style=display:flex><span>│                           │ failed the entire claim batch    │ had zero visibility into error  │
+</span></span><span style=display:flex><span>└───────────────────────────┴──────────────────────────────────┴─────────────────────────────────┘
+</span></span></code></pre></div><h3 id=defect-1-the-lambda-path-reconstitution-bug>Defect 1: The Lambda Path Reconstitution Bug</h3><p>In our <code>ExtractMetadata</code> Lambda, code designed for a legacy client attempted to normalize asset URIs by stripping the bucket name:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># ❌ BUG: Stripping bucket assuming single-tenant directory structure</span>
+</span></span><span style=display:flex><span>bucket, key <span style=color:#f92672>=</span> parse_s3_uri(asset_uri)
+</span></span><span style=display:flex><span><span style=color:#75715e># Hardcoded legacy assumption broke multi-tenant client prefix paths:</span>
+</span></span><span style=display:flex><span>normalized_key <span style=color:#f92672>=</span> key<span style=color:#f92672>.</span>replace(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;clients/</span><span style=color:#e6db74>{</span>tenant_id<span style=color:#e6db74>}</span><span style=color:#e6db74>/&#34;</span>, <span style=color:#e6db74>&#34;&#34;</span>) 
+</span></span></code></pre></div><p>This produced a malformed S3 key path. When the subsequent Step Function task attempted to read the file, S3 returned a <code>404 Not Found</code>.</p><h3 id=defect-2-ephemeral-presigned-urls-vs-canonical-s3-keys>Defect 2: Ephemeral Presigned URLs vs. Canonical S3 Keys</h3><p>When files were ingested, upstream services generated temporary S3 presigned URLs with a 15-minute Time-To-Live (TTL) and passed those URLs as the message payload to Step Functions.</p><p>However, during heavy batch uploads, messages queued in SQS for 10–12 minutes before Step Functions claimed them. By the time Step Functions attempted to download the PDF, the presigned URL had <strong>expired</strong>, returning <code>403 RequestTimeTooSkewed</code> or <code>AccessDenied</code>.</p><p><strong>The Architectural Fix:</strong> State machines should pass <strong>canonical resource identifiers</strong> (<code>s3://bucket/key</code>), never short-lived presigned URLs. Workers generate fresh credentials or access S3 via native IAM roles at execution time.</p><hr><h2 id=4-the-4-stage-remediation-architecture>4. The 4-Stage Remediation Architecture</h2><p>We overhauled the ingestion state machine to make it resilient, transparent, and self-healing:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>========================================================================================
+</span></span><span style=display:flex><span>RESILIENT STEP FUNCTIONS ORCHESTRATION WITH OBSERVABILITY
+</span></span><span style=display:flex><span>========================================================================================
+</span></span><span style=display:flex><span>[ SQS Ingestion Event ]
+</span></span><span style=display:flex><span>           │
+</span></span><span style=display:flex><span>           ▼
+</span></span><span style=display:flex><span>[ State: DownloadAssets ] ──(Retry with Backoff)──► [ State: ExtractImages ]
+</span></span><span style=display:flex><span>           │ (On Max Retries Exceeded)                          │
+</span></span><span style=display:flex><span>           ▼                                                    ▼
+</span></span><span style=display:flex><span>┌─────────────────────────┐                            ┌─────────────────────────┐
+</span></span><span style=display:flex><span>│ Terminal State: Fail    │                            │ Terminal State: Succeed │
+</span></span><span style=display:flex><span>│ Type: &#34;Fail&#34;            │                            │ Type: &#34;Succeed&#34;         │
+</span></span><span style=display:flex><span>│ Error: &#34;AssetFetchFail&#34; │                            │ Metric: &#34;CaseCreated&#34;   │
+</span></span><span style=display:flex><span>└──────────┬──────────────┘                            └─────────────────────────┘
+</span></span><span style=display:flex><span>           │
+</span></span><span style=display:flex><span>           │ Emits CloudWatch Event
+</span></span><span style=display:flex><span>           ▼
+</span></span><span style=display:flex><span>┌────────────────────────────────────────────────────────┐
+</span></span><span style=display:flex><span>│ Dead-Letter Queue (SQS DLQ) + PagerDuty / Slack Alert  │
+</span></span><span style=display:flex><span>└────────────────────────────────────────────────────────┘
+</span></span></code></pre></div><h3 id=1-proper-asl-error-handling--dlq-routing>1. Proper ASL Error Handling & DLQ Routing</h3><p>We updated the Amazon States Language definition to separate genuine business completion from technical failures:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;DownloadAssets&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Type&#34;</span>: <span style=color:#e6db74>&#34;Task&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Resource&#34;</span>: <span style=color:#e6db74>&#34;arn:aws:lambda:...:function:DownloadAssets&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Retry&#34;</span>: [
+</span></span><span style=display:flex><span>      {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;ErrorEquals&#34;</span>: [<span style=color:#e6db74>&#34;Lambda.ServiceException&#34;</span>, <span style=color:#e6db74>&#34;Lambda.TooManyRequestsException&#34;</span>],
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;IntervalSeconds&#34;</span>: <span style=color:#ae81ff>2</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;MaxAttempts&#34;</span>: <span style=color:#ae81ff>3</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;BackoffRate&#34;</span>: <span style=color:#ae81ff>2.0</span>
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    ],
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Catch&#34;</span>: [
+</span></span><span style=display:flex><span>      {
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;ErrorEquals&#34;</span>: [<span style=color:#e6db74>&#34;States.ALL&#34;</span>],
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;ResultPath&#34;</span>: <span style=color:#e6db74>&#34;$.error&#34;</span>,
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&#34;Next&#34;</span>: <span style=color:#e6db74>&#34;PublishToDLQ&#34;</span>
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    ],
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Next&#34;</span>: <span style=color:#e6db74>&#34;ExtractImages&#34;</span>
+</span></span><span style=display:flex><span>  },
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;PublishToDLQ&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Type&#34;</span>: <span style=color:#e6db74>&#34;Task&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Resource&#34;</span>: <span style=color:#e6db74>&#34;arn:aws:states:::sqs:sendMessage&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Parameters&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;QueueUrl&#34;</span>: <span style=color:#e6db74>&#34;https://sqs.us-east-1.amazonaws.com/.../ingest-dlq&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;MessageBody.$&#34;</span>: <span style=color:#e6db74>&#34;$&#34;</span>
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Next&#34;</span>: <span style=color:#e6db74>&#34;FailExecution&#34;</span>
+</span></span><span style=display:flex><span>  },
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;FailExecution&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Type&#34;</span>: <span style=color:#e6db74>&#34;Fail&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Cause&#34;</span>: <span style=color:#e6db74>&#34;Pipeline failed during document ingestion&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;Error&#34;</span>: <span style=color:#e6db74>&#34;IngestionFailure&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=2-switching-to-canonical-s3-key-resolution>2. Switching to Canonical S3 Key Resolution</h3><p>We removed all passing of presigned URLs between pipeline stages. The state machine payload now carries immutable metadata:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;tenant_id&#34;</span>: <span style=color:#e6db74>&#34;tenant_enterprise_01&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;claim_id&#34;</span>: <span style=color:#e6db74>&#34;claim_90214&#34;</span>,
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;document_key&#34;</span>: <span style=color:#e6db74>&#34;raw/tenant_enterprise_01/claim_90214/estimate.pdf&#34;</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Workers download assets directly using their container IAM execution roles (<code>s3:GetObject</code>), eliminating all expiration failure modes.</p><h3 id=3-partial-failure-loaders--reviewer-visibility>3. Partial-Failure Loaders & Reviewer Visibility</h3><p>Previously, if 1 out of 50 images in a claim failed OpenCV extraction, the entire claim was dropped.</p><p>We redesigned the extraction step to support <strong>partial success</strong>:</p><ul><li>If 48 out of 50 images extract cleanly, the claim is successfully created.</li><li>The 2 failed images are badged with a warning in the reviewer portal (<code>EXTRACTION_WARNING: Image 12 unreadable</code>).</li><li>Reviewers can view the original raw PDF directly via an on-demand presigned URL generated on click, preventing blocked workflows.</li></ul><hr><h2 id=5-results--operational-impact>5. Results & Operational Impact</h2><p>Following deployment of the hardened state machine and canonical S3 pathing:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>┌──────────────────────────────────────┬─────────────┬─────────────┐
+</span></span><span style=display:flex><span>│ Operational Metric                   │ Before Fix  │ After Fix   │
+</span></span><span style=display:flex><span>├──────────────────────────────────────┼─────────────┼─────────────┤
+</span></span><span style=display:flex><span>│ Ingestion Success Rate (Live PDFs)   │ 21.0%       │ 98.2%       │
+</span></span><span style=display:flex><span>│ Unhandled Case Loss                  │ 79.0%       │ 0.0%        │
+</span></span><span style=display:flex><span>│ Failed-Case Reviewer Visibility      │ 0.0%        │ 100.0%      │
+</span></span><span style=display:flex><span>│ Engineering Triage Overhead          │ ~15 hrs/wk  │ &lt; 30 min/wk │
+</span></span><span style=display:flex><span>│ False Positive CloudWatch Metrics    │ 100% green  │ Eliminated  │
+</span></span><span style=display:flex><span>└──────────────────────────────────────┴─────────────┴─────────────┘
+</span></span></code></pre></div><p>The ingestion success rate surged from <strong>21% to 98% across batches of 100+ live enterprise claims</strong>. The remaining 1.8% of cases were genuinely corrupted or password-protected PDFs, which now route cleanly to the Dead-Letter Queue with contextual error banners.</p><hr><h2 id=summary-senior-incident-response-framework>Summary: Senior Incident Response Framework</h2><p>When a silent failure hits distributed cloud workflows:</p><ol><li><strong>Never Trust Aggregate Metrics Alone:</strong> If customer telemetry disagrees with your dashboard, the dashboard is lying. Inspect raw, individual event-trace logs.</li><li><strong>Beware the <code>Succeed</code> Catch-All:</strong> Never terminate a Step Function in <code>Succeed</code> when handling an unrecoverable failure. Route caught errors to a <code>Fail</code> state and an SQS Dead-Letter Queue.</li><li><strong>Pass Canonical Identifiers, Not Ephemeral Tokens:</strong> Pass durable S3 keys (<code>s3://bucket/key</code>) through state machine states; never rely on short-lived presigned URLs for multi-stage asynchronous processing.</li><li><strong>Design for Partial Degradation:</strong> In high-volume batch processing, a single corrupt artifact should never abort an entire multi-asset transaction. Surface partial results with clear diagnostic badges.</li><li><strong>Close the Alerting Loop:</strong> Pair Step Functions <code>ExecutionsFailed</code> metrics with SQS DLQ backlog depth alarms connected to PagerDuty or Slack.</li></ol></article><div class=post-navigation><a class=prev href=https://shivanshu27.github.io/my-personal-website/blog/from-kubernetes-to-ecs-fargate-ml-migration/><i class="fas fa-arrow-left"></i>
+<span>From Kubernetes to AWS ECS Fargate: A …</span>
+</a><a class=next href=https://shivanshu27.github.io/my-personal-website/blog/securing-api-keys-on-premise-client-infra/><span>Defending Secrets in Hostile Territory: …</span>
+<i class="fas fa-arrow-right"></i></a></div></div></section></main><footer class=site-footer><div class=container><div class=footer-content><div class=footer-brand><a href=/my-personal-website/ class=footer-logo><span class=logo-bracket>{</span>
+<span class=logo-text>Shivanshu Singla</span>
+<span class=logo-bracket>}</span></a><p class=footer-tagline>Senior Software Engineer @ Tractable — building AI-driven, cloud-native systems on AWS, GCP & Azure</p></div><div class=footer-nav><h4>Navigation</h4><ul><li><a href=/my-personal-website/>Home</a></li><li><a href=/my-personal-website/about/>About</a></li><li><a href=/my-personal-website/projects/>Projects</a></li><li><a href=/my-personal-website/blog/>Blog</a></li><li><a href=/my-personal-website/contact/>Contact</a></li></ul></div><div class=footer-connect><h4>Connect</h4><div class=social-links><a href=https://github.com/Shivanshu27 target=_blank rel=noopener aria-label=GitHub><i class="fab fa-github"></i></a>
+<a href=https://linkedin.com/in/shivanshusingla target=_blank rel=noopener aria-label=LinkedIn><i class="fab fa-linkedin-in"></i></a>
+<a href=mailto:shivanshu.singla27@gmail.com aria-label=Email><i class="fas fa-envelope"></i></a></div></div></div><div class=footer-bottom><p>&copy; 2026 Shivanshu Singla. Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a>.</p></div></div></footer><script src=/my-personal-website/js/main.js></script></body></html>
