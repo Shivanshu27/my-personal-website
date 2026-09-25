@@ -7,8 +7,8 @@ buildFuture = true
 
 [params]
   author = "Shivanshu Singla"
-  description = "Senior Software Engineer @ Tractable — building AI-driven, cloud-native systems on AWS, GCP & Azure"
-  tagline = "Senior Software Engineer @ Tractable · Full Stack & Cloud · AI/ML · IIT Kanpur"
+  description = "Backend & platform engineer — production AI systems on AWS and GCP. Senior Software Engineer @ Tractable, IIT Kanpur."
+  tagline = "Backend & Platform Engineer · Production AI Systems on AWS & GCP · IIT Kanpur"
   github = "https://github.com/Shivanshu27"
   linkedin = "https://linkedin.com/in/shivanshusingla"
   email = "shivanshu.singla27@gmail.com"
