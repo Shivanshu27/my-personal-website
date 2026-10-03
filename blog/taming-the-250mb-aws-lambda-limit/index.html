@@ -1,0 +1,150 @@
+<!doctype html><html lang=en-us><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Taming the 250MB AWS Lambda Limit: Dependency Surgery, BuildKit SSH Mounts, and a CI Gate That Caught Me 2.8MB Over | Shivanshu Singla</title><meta name=description content="Backend & platform engineer — production AI systems on AWS and GCP. Senior Software Engineer @ Tractable, IIT Kanpur."><link rel=icon href=/images/favicon.png><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css><link rel=stylesheet href=/my-personal-website/css/main.css><link rel=stylesheet href=/css/custom.css></head><body><header class=site-header><div class=container><div class=header-inner><a href=/my-personal-website/ class=logo><span class=logo-bracket>{</span>
+<span class=logo-text>Shivanshu Singla</span>
+<span class=logo-bracket>}</span></a><nav class=main-nav id=main-nav><ul><li><a href=/my-personal-website/>Home</a></li><li><a href=/my-personal-website/about/>About</a></li><li><a href=/my-personal-website/projects/>Projects</a></li><li><a href=/my-personal-website/blog/>Blog</a></li><li><a href=/my-personal-website/contact/>Contact</a></li></ul></nav><button class=mobile-menu-toggle id=menu-toggle aria-label="Toggle menu">
+<span></span>
+<span></span>
+<span></span></button></div></div></header><main><section class=page-header><div class=container><h1>Taming the 250MB AWS Lambda Limit: Dependency Surgery, BuildKit SSH Mounts, and a CI Gate That Caught Me 2.8MB Over</h1><div class=post-meta><span class=date><i class="far fa-calendar-alt"></i> September 22, 2026</span>
+<span class=tags><i class="fas fa-tags"></i>
+<a href=/tags/aws>aws</a>
+<a href=/tags/lambda>lambda</a>
+<a href=/tags/serverless>serverless</a>
+<a href=/tags/python>python</a>
+<a href=/tags/docker>docker</a>
+<a href=/tags/devops>devops</a>
+<a href=/tags/security>security</a>
+<a href=/tags/ci-cd>ci-cd</a></span></div></div></section><section class=content-section><div class=container><article class=content><p>AWS Lambda gives your function code plus all of its layers exactly <strong>250 MB
+unzipped</strong> (262,144,000 bytes). A computer-vision inference stack goes
+through that without trying:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>pip install opencv-python-headless numpy pillow onnxruntime  (+ what real projects drag in)
+</span></span><span style=display:flex><span>        │
+</span></span><span style=display:flex><span>        ▼
+</span></span><span style=display:flex><span>494 MB unzipped  ──►  &#34;Unzipped size must be smaller than 262144000 bytes&#34;
+</span></span></code></pre></div><p>I first hit this wall at work, on a PyTorch and OpenCV service with private
+dependencies. I can&rsquo;t share that code, so I rebuilt the technique in public:
+<strong><a href=https://github.com/Shivanshu27/lambda-layer-squeeze>github.com/Shivanshu27/lambda-layer-squeeze</a></strong>.
+Every number in this post comes from that repository&rsquo;s CI logs. You can
+clone it and get the same results.</p><p><strong>The result: 494 MB → 230 MB, verified inside the real Lambda runtime
+image, with CI failing the build if it ever goes over 250 MB.</strong> That gate
+has already fired once, and the story of why is the most useful part of
+this post.</p><hr><h2 id=1-the-limits-precisely>1. The limits, precisely</h2><table><thead><tr><th>Limit</th><th>Value</th></tr></thead><tbody><tr><td>Function code <strong>+ all layers</strong>, unzipped</td><td><strong>250 MB</strong> (262,144,000 bytes)</td></tr><tr><td>Zip uploaded directly through the API</td><td>50 MB (larger zips go through S3; the 250 MB unzipped limit still applies)</td></tr><tr><td>Layers per function</td><td>5</td></tr><tr><td>Container images (the escape hatch)</td><td>10 GB</td></tr></tbody></table><p>Layers are extracted into <code>/opt</code>, and the Python runtime puts
+<code>/opt/python</code> on <code>sys.path</code>. So the whole game is: what ends up in
+<code>/opt/python</code>, and does it still work?</p><hr><h2 id=2-the-idea-most-of-a-pip-install-never-executes>2. The idea: most of a <code>pip install</code> never executes</h2><p><code>pip install</code> serves <em>developers</em>. It ships C headers, test suites,
+documentation, and debug symbols inside shared libraries. A Lambda only needs
+<strong>what runs</strong>. So the job isn&rsquo;t &ldquo;compress harder&rdquo;. It&rsquo;s:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>install everything ─► remove what never executes ─► PROVE what&#39;s left still works
+</span></span><span style=display:flex><span>                                                     (inside the real Lambda image)
+</span></span></code></pre></div><p>The third step is where engineering separates from guesswork. Deleting files
+from a dependency tree is easy. Knowing you didn&rsquo;t break it is the job.</p><hr><h2 id=3-the-pipeline-a-three-stage-docker-build>3. The pipeline: a three-stage Docker build</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>┌─ Stage 1: builder (public.ecr.aws/sam/build-python3.11) ──────────────────────┐
+</span></span><span style=display:flex><span>│  RUN --mount=type=ssh pip install --only-binary=:all: --target /opt/python …  │
+</span></span><span style=display:flex><span>│  prune_layer.sh /opt/python        (&#34;dependency surgery&#34;, section 6)          │
+</span></span><span style=display:flex><span>└───────────────────────────────────────────────────────────────────────────────┘
+</span></span><span style=display:flex><span>                     │ COPY /opt/python
+</span></span><span style=display:flex><span>                     ▼
+</span></span><span style=display:flex><span>┌─ Stage 2: runtime-verifier (public.ecr.aws/lambda/python:3.11) ───────────────┐
+</span></span><span style=display:flex><span>│  verify_layer.py  → total bytes ≤ 262,144,000, else exit 1; top-10 size table │
+</span></span><span style=display:flex><span>│  test_smoke.py    → import cv2/PIL/numpy/onnxruntime, run a real GaussianBlur, │
+</span></span><span style=display:flex><span>│                     initialise ONNX Runtime                                    │
+</span></span><span style=display:flex><span>└───────────────────────────────────────────────────────────────────────────────┘
+</span></span><span style=display:flex><span>                     │
+</span></span><span style=display:flex><span>                     ▼
+</span></span><span style=display:flex><span>┌─ Stage 3: exporter (FROM scratch) → only /opt/python → make extract → layer.zip ┐
+</span></span></code></pre></div><p>GitHub Actions builds the verifier stage on every push and pull request, so
+<strong>size and behaviour are checked before anything can be published.</strong></p><hr><h2 id=4-build-on-a-lambda-compatible-image-not-python311-slim>4. Build on a Lambda-compatible image, not <code>python:3.11-slim</code></h2><p>This one is easy to get wrong, and it fails at runtime, not at build time.</p><p>The Lambda Python 3.11 runtime runs on <strong>Amazon Linux 2 (glibc 2.26)</strong>. The
+<code>python:3.11-slim</code> image is <strong>Debian (glibc 2.36)</strong>. pip picks wheels that
+are compatible with the machine it runs on, so on Debian it can choose a
+wheel built for a newer glibc. It installs fine, then fails on Lambda with
+<code>GLIBC_2.28 not found</code>.</p><p>Build on <code>public.ecr.aws/sam/build-python3.11</code>, which matches the runtime,
+and verify on <code>public.ecr.aws/lambda/python:3.11</code>, which is the runtime. If
+it imports on your laptop, that proves nothing about Lambda.</p><hr><h2 id=5-private-dependencies-without-leaking-credentials>5. Private dependencies without leaking credentials</h2><p>The common anti-pattern:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-dockerfile data-lang=dockerfile><span style=display:flex><span><span style=color:#75715e># ❌ the key ends up in the image history</span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>ARG</span> SSH_PRIVATE_KEY<span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>RUN</span> echo <span style=color:#e6db74>&#34;</span>$SSH_PRIVATE_KEY<span style=color:#e6db74>&#34;</span> &gt; ~/.ssh/id_rsa <span style=color:#f92672>&amp;&amp;</span> pip install -r requirements.txt <span style=color:#f92672>&amp;&amp;</span> rm ~/.ssh/id_rsa<span style=color:#960050;background-color:#1e0010>
+</span></span></span></code></pre></div><p>Removing the file in the same <code>RUN</code> does keep it out of the layer&rsquo;s
+filesystem. <strong>The leak is the build argument.</strong> Values passed with <code>ARG</code>
+and used in a <code>RUN</code> are recorded in the image&rsquo;s metadata and build cache, so
+<code>docker history --no-trunc</code> shows them. Split the write and the delete
+across two <code>RUN</code>s, and the key is also sitting in a layer.</p><p>BuildKit&rsquo;s SSH mount forwards your <strong>host&rsquo;s ssh-agent socket</strong> into a single
+<code>RUN</code> step:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-dockerfile data-lang=dockerfile><span style=display:flex><span><span style=color:#75715e># syntax=docker/dockerfile:1.4</span><span style=color:#960050;background-color:#1e0010>
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>RUN</span> --mount<span style=color:#f92672>=</span>type<span style=color:#f92672>=</span>ssh <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>    pip install --no-cache-dir --target /opt/python --only-binary<span style=color:#f92672>=</span>:all: -r requirements.txt<span style=color:#960050;background-color:#1e0010>
+</span></span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span>docker build --ssh default .
+</span></span></code></pre></div><p>Git and pip authenticate through the agent. The private key stays in the
+agent on the host: it&rsquo;s never written to the container&rsquo;s filesystem, a
+layer, or the image history. In CI, load a <strong>read-only deploy key</strong> into an
+agent first (for example with <code>webfactory/ssh-agent</code>), then build with
+<code>--ssh default</code>.</p><hr><h2 id=6-dependency-surgery-and-what-it-really-removed>6. Dependency surgery, and what it really removed</h2><p>Everything here is in
+<a href=https://github.com/Shivanshu27/lambda-layer-squeeze/blob/main/scripts/prune_layer.sh><code>scripts/prune_layer.sh</code></a>:</p><table><thead><tr><th>Step</th><th>Removes</th><th>Why it&rsquo;s safe</th></tr></thead><tbody><tr><td>1</td><td><code>boto3</code>, <code>botocore</code>, <code>s3transfer</code></td><td>the Lambda Python runtime already provides them</td></tr><tr><td>2</td><td>dev and docs tooling: pytest, <code>_pytest</code>, sphinx, docutils, pygments, snowballstemmer, pre-commit, sympy…</td><td>never imported by the inference path (see section 7 for how I found these)</td></tr><tr><td>3</td><td><code>__pycache__</code>, <code>*.pyc</code></td><td>regenerated as needed</td></tr><tr><td>4</td><td><code>tests/</code>, <code>docs/</code>, <code>examples/</code> directories</td><td>not imported at runtime, <strong>checked by the smoke test</strong></td></tr><tr><td>5</td><td><code>*.c</code>, <code>*.h</code>, <code>*.pyx</code>, <code>*.md</code>, <code>*.txt</code> (keeping LICENSE/COPYING)</td><td>source and docs, not executed</td></tr><tr><td>6</td><td><code>.dist-info/RECORD</code> and <code>INSTALLER</code> (keeping <code>METADATA</code>)</td><td>some packages read their own metadata at import time, so <code>METADATA</code> stays</td></tr><tr><td>7</td><td><code>strip --strip-unneeded</code> on every ELF <code>.so</code> (67 files)</td><td>removes symbols that dynamic linking doesn&rsquo;t need; the dynamic symbol table stays</td></tr></tbody></table><p>Two warnings that apply to any pruning script, including mine:</p><ul><li><strong>Deleting by pattern can remove something a package needs.</strong> Some
+packages ship data as <code>.txt</code>, or import their own <code>testing</code> module.
+Deleting all of <code>.dist-info</code>, or <code>setuptools</code>, can break packages that
+look up metadata or still use <code>pkg_resources</code>. <strong>The smoke test is what
+makes pruning safe</strong>, so it has to do real work, not just <code>import</code>.</li><li><strong>Stripped libraries give worse native crash traces.</strong> It&rsquo;s a deliberate
+trade: debug with an unstripped build.</li></ul><hr><h2 id=7-what-the-ci-history-taught-me>7. What the CI history taught me</h2><p>This is the part a &ldquo;before and after&rdquo; table hides. In order:</p><p><strong>1. Pillow started compiling from source.</strong> The first version installed
+PyTorch CPU wheels from PyTorch&rsquo;s own package index. pip quietly fell back
+to building Pillow from source. Fix: isolate that index and pass
+<code>--only-binary=:all:</code>, so a missing wheel <strong>fails fast</strong> instead of silently
+compiling.</p><p><strong>2. With PyTorch in the stack, the install started at 1.1 GB.</strong> No pruning
+script closes that gap. The PyTorch wheel carries a whole <em>training</em>
+engine: autograd, the compiler stack, and more. The real fix was
+architectural. Train in PyTorch, export the model to <strong>ONNX</strong>, and ship
+<strong>ONNX Runtime</strong> (about 17 MB in the final layer) for inference. Keep the
+model weights in S3 or EFS, not in the layer.</p><p><strong>3. The CI gate fired: 252.82 MB, 2.82 MB over.</strong> With ONNX Runtime the
+install was 494 MB, and the first surgery brought it to 252.82 MiB. CI
+failed the build, exactly as designed. The verifier&rsquo;s top-10 table pointed
+at <strong>sympy</strong> and its dependency mpmath.</p><p>Here&rsquo;s the surprise: sympy isn&rsquo;t a stray dev tool. It&rsquo;s a <strong>declared
+dependency of onnxruntime itself</strong>. Inference with <code>InferenceSession</code> never
+imports it, so it&rsquo;s dead weight at runtime. I removed it, together with
+pygments and docutils, which Sphinx had pulled in. Result: 228.46 MiB, and
+the build passed.</p><p>The lesson: <em>the size check must be a CI gate.</em> Without it, a 2.8 MB
+overrun ships and fails at deploy time instead.</p><p><strong>4. The Lambda base image&rsquo;s entrypoint hijacked my smoke tests.</strong> That
+image starts the Lambda runtime interface by default, so
+<code>docker run image python3 script.py</code> wasn&rsquo;t doing what it looked like. Fix:
+<code>ENTRYPOINT []</code> in the verifier stage, plus <code>--entrypoint python3</code> in CI and
+the Makefile.</p><p><strong>5. <code>PYTHONPATH</code> had to include <code>/opt/python</code> in the verifier.</strong> On real
+Lambda the runtime adds it. In a plain <code>docker run</code> you have to, or the
+smoke test passes or fails for the wrong reason.</p><p><strong>6. The size table exposed two more leaks.</strong> Even after story 3, the
+top-10 list still showed <code>_pytest</code> (1.28 MB) and <code>snowballstemmer</code>. The
+prune pattern <code>pytest*</code> doesn&rsquo;t match pytest&rsquo;s private package <code>_pytest</code>,
+and snowballstemmer exists only for Sphinx. I added both: 231.6 → 229.6 MiB.
+<em>Read the biggest-items table on every build; glob patterns miss
+underscore-prefixed packages.</em></p><hr><h2 id=8-where-it-stands>8. Where it stands</h2><p>The verifier&rsquo;s real output from CI, in the Lambda Python 3.11 image:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-text data-lang=text><span style=display:flex><span>Package / Item                      | Size
+</span></span><span style=display:flex><span>------------------------------------------------------------
+</span></span><span style=display:flex><span>cv2                                 | 71.88 MB
+</span></span><span style=display:flex><span>opencv_python_headless.libs         | 60.30 MB
+</span></span><span style=display:flex><span>numpy.libs                          | 34.90 MB
+</span></span><span style=display:flex><span>numpy                               | 20.81 MB
+</span></span><span style=display:flex><span>onnxruntime                         | 17.18 MB
+</span></span><span style=display:flex><span>pillow.libs                         | 15.43 MB
+</span></span><span style=display:flex><span>PIL                                 | 1.99 MB
+</span></span><span style=display:flex><span>google                              | 1.24 MB
+</span></span><span style=display:flex><span>charset_normalizer                  | 643.72 KB
+</span></span><span style=display:flex><span>yaml                                | 572.78 KB
+</span></span><span style=display:flex><span>------------------------------------------------------------
+</span></span><span style=display:flex><span>Total Layer Size: 229.63 MB / 250.00 MB
+</span></span><span style=display:flex><span>AWS Lambda Quota Utilization: 91.9%
+</span></span><span style=display:flex><span>  [PASS] Successfully imported cv2 (v4.9.0)
+</span></span><span style=display:flex><span>  [PASS] Successfully imported PIL (v12.2.0)
+</span></span><span style=display:flex><span>  [PASS] Successfully imported numpy (v1.26.4)
+</span></span><span style=display:flex><span>  [PASS] Successfully imported onnxruntime (v1.16.3)
+</span></span><span style=display:flex><span>  [PASS] OpenCV image matrix Gaussian blur test succeeded (shape: (100, 100, 3))
+</span></span><span style=display:flex><span>  [PASS] ONNX Runtime execution engine initialized
+</span></span></code></pre></div><table><thead><tr><th></th><th style=text-align:right>Size</th></tr></thead><tbody><tr><td>After <code>pip install</code></td><td style=text-align:right>494 MB</td></tr><tr><td>After surgery</td><td style=text-align:right><strong>230 MB</strong> (229.63 MiB, 91.9% of quota)</td></tr><tr><td>Reduction</td><td style=text-align:right>~53%</td></tr></tbody></table><p><strong>What&rsquo;s left, honestly:</strong></p><ul><li><strong>Two more leftovers.</strong> <code>charset_normalizer</code> (pulled in through Sphinx&rsquo;s
+dependency on <code>requests</code>) and <code>yaml</code> (from pre-commit) still survive.
+They&rsquo;re the next items for the surgery list.</li><li><strong>The biggest win is upstream.</strong> Fix the dependency tree so dev tooling is
+never installed into a runtime layer in the first place. The demo
+installs it on purpose, to have something to remove.</li><li><strong>The smoke test should run real inference.</strong> It initialises ONNX Runtime
+but doesn&rsquo;t run a model yet; the next step is a tiny <code>.onnx</code> model and one
+real call.</li><li><strong>91.9% of quota is warning territory.</strong> A real team should alert at 90%,
+not wait for the hard failure.</li><li><strong>The build isn&rsquo;t fully reproducible yet.</strong> The SAM image tag and the
+Pillow pin should both be exact versions.</li></ul><hr><h2 id=9-checklist>9. Checklist</h2><ol><li><strong>Know the real limit.</strong> 262,144,000 bytes unzipped, covering code
+<strong>and</strong> all layers.</li><li><strong>Build on a Lambda-compatible image,</strong> and verify inside the real
+runtime image. glibc mismatches fail at runtime, not at build time.</li><li><strong>Never pass secrets with <code>ARG</code>.</strong> Use <code>--mount=type=ssh</code> (or
+<code>type=secret</code>) with read-only deploy keys.</li><li><strong>Use <code>--only-binary=:all:</code>,</strong> so missing wheels fail fast instead of
+compiling silently.</li><li><strong>Ship an inference runtime, not a training framework.</strong> ONNX Runtime or
+TorchScript, with weights in S3 or EFS.</li><li><strong>Prune, then prove.</strong> A smoke test that does real work, in the real
+image.</li><li><strong>Gate size in CI and read the top-10 table.</strong> That&rsquo;s how every leak in
+this post was found.</li></ol><p>The full pipeline, scripts and CI are at
+<strong><a href=https://github.com/Shivanshu27/lambda-layer-squeeze>github.com/Shivanshu27/lambda-layer-squeeze</a></strong>.</p></article><div class=post-navigation><a class=prev href=https://shivanshu27.github.io/my-personal-website/blog/enterprise-rag-pipeline-architecture/><i class="fas fa-arrow-left"></i>
+<span>Designing an Enterprise RAG Pipeline: …</span>
+</a><a class=next href=https://shivanshu27.github.io/my-personal-website/blog/from-kubernetes-to-ecs-fargate-ml-migration/><span>From Kubernetes to AWS ECS Fargate: A …</span>
+<i class="fas fa-arrow-right"></i></a></div></div></section></main><footer class=site-footer><div class=container><div class=footer-content><div class=footer-brand><a href=/my-personal-website/ class=footer-logo><span class=logo-bracket>{</span>
+<span class=logo-text>Shivanshu Singla</span>
+<span class=logo-bracket>}</span></a><p class=footer-tagline>Backend & platform engineer — production AI systems on AWS and GCP. Senior Software Engineer @ Tractable, IIT Kanpur.</p></div><div class=footer-nav><h4>Navigation</h4><ul><li><a href=/my-personal-website/>Home</a></li><li><a href=/my-personal-website/about/>About</a></li><li><a href=/my-personal-website/projects/>Projects</a></li><li><a href=/my-personal-website/blog/>Blog</a></li><li><a href=/my-personal-website/contact/>Contact</a></li></ul></div><div class=footer-connect><h4>Connect</h4><div class=social-links><a href=https://github.com/Shivanshu27 target=_blank rel=noopener aria-label=GitHub><i class="fab fa-github"></i></a>
+<a href=https://linkedin.com/in/shivanshusingla target=_blank rel=noopener aria-label=LinkedIn><i class="fab fa-linkedin-in"></i></a>
+<a href=mailto:shivanshu.singla27@gmail.com aria-label=Email><i class="fas fa-envelope"></i></a></div></div></div><div class=footer-bottom><p>&copy; 2026 Shivanshu Singla. Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a>.</p></div></div></footer><script src=/my-personal-website/js/main.js></script></body></html>

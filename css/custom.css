@@ -1,0 +1,90 @@
+/* Custom overrides */
+
+/* Smooth link underlines on hover */
+.content a {
+  text-decoration: underline;
+  text-decoration-color: var(--primary-glow);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition);
+}
+
+.content a:hover {
+  text-decoration-color: var(--primary);
+}
+
+/* Project card bullets */
+.project-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 16px;
+}
+
+.project-bullets li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.project-bullets li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* =========================================
+   Modern Responsive Table Styles
+   ========================================= */
+.content table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2.2rem 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.content table th {
+  background-color: #f1f5f9;
+  color: var(--text-primary);
+  font-weight: 700;
+  text-align: left;
+  padding: 14px 18px;
+  border-bottom: 2px solid var(--border);
+  font-family: var(--font-sans);
+  letter-spacing: 0.02em;
+}
+
+.content table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+
+.content table tr:last-child td {
+  border-bottom: none;
+}
+
+.content table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.content table tbody tr:hover td {
+  background-color: rgba(99, 102, 241, 0.04);
+}
+
+.content table strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
